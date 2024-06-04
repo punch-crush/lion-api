@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"baseUrl": "./",
+		"paths": {
+			"@user/*": ["src/user/*"],
+			"@post/*": ["src/post/*"],
+			"@comment/*": ["src/comment/*"],
+			"@product/*": ["src/product/*"],
+			"@image/*": ["src/image/*"],
+			"@middleware/*": ["src/middleware/*"],
+			"@utils/*": ["src/utils/*"]
+		}
+	}
+}
