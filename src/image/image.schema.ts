@@ -1,8 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
+
+export type ImageDocument = HydratedDocument<Image>;
 
 @Schema()
-export class Image extends Document {
+export class Image {
 	@Prop({ type: String, trim: true, required: true })
 	fieldname: string;
 
