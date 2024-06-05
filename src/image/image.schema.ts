@@ -1,19 +1,36 @@
-import mongoose from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-const imageSchema = new mongoose.Schema({
-	fieldname: { type: String, trim: true, required: true },
-	originalname: { type: String, trim: true, required: true },
-	encoding: { type: String, trim: true, required: true },
-	mimetype: { type: String, trim: true, required: true },
-	destination: { type: String, trim: true, required: true },
-	filename: {
+@Schema()
+export class Image extends Document {
+	@Prop({ type: String, trim: true, required: true })
+	fieldname: string;
+
+	@Prop({ type: String, trim: true, required: true })
+	originalname: string;
+
+	@Prop({ type: String, trim: true, required: true })
+	encoding: string;
+
+	@Prop({ type: String, trim: true, required: true })
+	mimetype: string;
+
+	@Prop({ type: String, trim: true, required: true })
+	destination: string;
+
+	@Prop({
 		type: String,
 		trim: true,
 		required: true,
 		match: /\.(jpg|gif|png|jpeg|bmp|tif|heic)$/,
-	},
-	path: { type: String, trim: true, required: true },
-	size: { type: Number, required: true },
-});
+	})
+	filename: string;
 
-export default mongoose.model('Image', imageSchema);
+	@Prop({ type: String, trim: true, required: true })
+	path: string;
+
+	@Prop({ type: Number, required: true })
+	size: number;
+}
+
+export const ImageSchema = SchemaFactory.createForClass(Image);
