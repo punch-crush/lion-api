@@ -9,6 +9,19 @@ import * as path from 'path';
 export class ImageService {
 	constructor(@InjectModel(Image.name) private imageModel: Model<ImageDocument>) {}
 
+	async uploadFile(file: Express.Multer.File) {
+		if (!file) {
+			throw new BadRequestException('파일이 없습니다.');
+		}
+
+		const imageDocument = new this.imageModel({
+			filename: file.filename,
+		});
+		await imageDocument.save();
+
+		return file;
+	}
+
 	async uploadFiles(files: Array<Express.Multer.File>) {
 		if (!files || files.length === 0) {
 			throw new BadRequestException('파일이 없습니다.');
