@@ -12,6 +12,7 @@ import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from '@config/multer.config';
 import { ImageService } from './image.service';
 import { Response } from 'express';
+import path from 'path';
 
 @Controller('image')
 export class ImageController {
@@ -31,6 +32,7 @@ export class ImageController {
 
 	@Get('uploads/:filename')
 	async getImage(@Param('filename') filename: string, @Res() res: Response) {
-		res.sendFile(filename, { root: 'uploads' });
+		const filePath = path.join('uploads', filename);
+		res.sendFile(filePath, { root: '.' });
 	}
 }
