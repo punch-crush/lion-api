@@ -2,12 +2,13 @@ import {
 	Controller,
 	Post,
 	UploadedFiles,
+	UploadedFile,
 	UseInterceptors,
 	Get,
 	Param,
 	Res,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from '@config/multer.config';
 import { ImageService } from './image.service';
 import { Response } from 'express';
@@ -17,6 +18,12 @@ export class ImageController {
 	constructor(private readonly imageService: ImageService) {}
 
 	@Post('uploadfile')
+	@UseInterceptors(FileInterceptor('file', multerConfig))
+	uploadFile(@UploadedFile() file: Express.Multer.File) {
+		return this.imageService.uploadFile(file);
+	}
+
+	@Post('uploadfiles')
 	@UseInterceptors(FilesInterceptor('files', 3, multerConfig))
 	uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>) {
 		return this.imageService.uploadFiles(files);
