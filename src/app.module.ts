@@ -3,12 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { UpdateProfileModule } from '@user/updateProfile.module';
-// import { ImageModule } from '@image/image.module';
-import { APP_PIPE } from '@nestjs/core';
-import { ConfigModule } from '@nestjs/config';
-import { UpdateProfileModule } from '@user/updateProfile.module';
-// import { ImageModule } from '@image/image.module';
+import { ImageModule } from '@image/image.module';
 
 @Module({
 	imports: [
@@ -16,8 +11,7 @@ import { UpdateProfileModule } from '@user/updateProfile.module';
 			isGlobal: true,
 		}),
 		MongooseModule.forRoot(process.env.DB_URL),
-		UpdateProfileModule,
-		// ImageModule,
+		ImageModule,
 	],
 	controllers: [AppController],
 	providers: [
