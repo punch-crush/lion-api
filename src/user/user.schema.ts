@@ -54,7 +54,7 @@ export class User extends Document {
 }
 
 export type UserDocument = HydratedDocument<User>;
-export const UserSchema = SchemaFactory.createForClass(User);
+const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.virtual('readOnlyData').get(function (this: User) {
 	return {
 		_id: this.id,
@@ -65,3 +65,5 @@ UserSchema.virtual('readOnlyData').get(function (this: User) {
 		image: this.image,
 	};
 });
+
+export default UserSchema;
