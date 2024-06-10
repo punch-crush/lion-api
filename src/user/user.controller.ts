@@ -1,45 +1,39 @@
-import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
-import { UserService } from './user.service';
 import {
-	AccountNameValidRequestDto,
-	EmailValidRequestDto,
-	RegisterRequestDto,
-} from './dto/user.dto';
+	Body,
+	Controller,
+	Get,
+	HttpException,
+	HttpStatus,
+	Post,
+	Query,
+} from '@nestjs/common';
+import { RegisterUserDTO } from './registerUser.dto';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
-	@Post()
-	async register(@Body() body: RegisterRequestDto) {
-		return await this.userService.register(body);
-	}
-
-	@Post('emailvalid')
-	async validateEmail(@Body() user: EmailValidRequestDto) {
+	@Get('emailvalid')
+	async emailValid(@Query('email') email: string) {
 		try {
-			const { email } = user.user;
 			return await this.userService.validateEmail(email);
 		} catch (error) {
-			if (error instanceof HttpException) {
-				throw error;
-			} else {
-				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
-			}
+			throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	@Post('accountnamevalid')
-	async validateAccountName(@Body() user: AccountNameValidRequestDto) {
+	@Get('accountnamevalid')
+	async accountnameValid(@Query('accountname') accountname: string) {
 		try {
-			const { accountname } = user.user;
 			return await this.userService.validateAccountName(accountname);
 		} catch (error) {
-			if (error instanceof HttpException) {
-				throw error;
-			} else {
-				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
-			}
+			throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	@Post('user')
+	register(@Body() body: RegisterUserDTO) {
+		return this.userService.register(body);
 	}
 }

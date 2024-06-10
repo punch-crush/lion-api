@@ -1,41 +1,26 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { RegisterUserDTO } from './registerUser.dto';
 import { Model } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { RegisterRequestDto } from './dto/user.dto';
 
+// https://velog.io/@bin-lee/%ED%9A%8C%EC%9B%90%EA%B0%80%EC%9E%85-%EC%84%9C%EB%B9%84%EC%8A%A4-%EB%A1%9C%EC%A7%81-%EA%B8%B0%EB%A1%9D-NestJS
 @Injectable()
 export class UserService {
 	constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-	async register(user: RegisterRequestDto) {
-		const { email, accountname, username, password } = user.user;
-		if (!email || !accountname || !username || !password) {
-			throw new HttpException('필수 입력사항을 입력해주세요.', HttpStatus.BAD_REQUEST);
-		}
-		const isEmailExist = await this.userModel.exists({ email });
-		if (isEmailExist) {
-			throw new HttpException('이미 가입된 이메일 주소 입니다.', HttpStatus.BAD_REQUEST);
-		}
-		const isAccountNameExist = await this.userModel.exists({ accountname });
-		if (isAccountNameExist) {
-			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
-		}
-
-		const hashedPassword = await await bcrypt.hash(password, 10);
+	async register(user: RegisterUserDTO) {
+		const hashedPassword = await await bcrypt.hash(user.password, 10);
 		const newUser = await this.userModel.create({
-			...user.user,
+			...user,
 			password: hashedPassword,
 		});
-		return {
-			message: '회원가입 성공',
-			user: newUser.readOnlyData,
-		};
+		return newUser;
 	}
 
 	async validateEmail(email: string) {
-		const isEmailExist = await this.userModel.exists({ email });
+		const isEmailExist = await this.userModel.exists({ user: { email } });
 		if (isEmailExist) {
 			throw new HttpException('이미 가입된 이메일 주소 입니다.', HttpStatus.BAD_REQUEST);
 		}
@@ -43,22 +28,10 @@ export class UserService {
 	}
 
 	async validateAccountName(accountname: string) {
-		const isAccountNameExist = await this.userModel.exists({ accountname });
-		if (isAccountNameExist) {
+		const isAccountExist = await this.userModel.exists({ user: { accountname } });
+		if (isAccountExist) {
 			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
 		}
 		return { message: '사용 가능한 계정ID 입니다.' };
-	}
-
-	async findUser(email: string, password: string) {
-		const user = await this.userModel.findOne({ email });
-		if (!user) {
-			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-		}
-		const isPasswordValid = await bcrypt.compare(password, user.password);
-		if (!isPasswordValid) {
-			throw new HttpException('비밀번호가 일치하지 않습니다.', HttpStatus.UNAUTHORIZED);
-		}
-		return { _id: user._id, email: user.email };
 	}
 }

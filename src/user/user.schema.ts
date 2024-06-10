@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, HydratedDocument } from 'mongoose';
+import { Document, HydratedDocument } from 'mongoose';
 
 @Schema()
 export class User extends Document {
@@ -41,22 +42,13 @@ export class User extends Document {
 
 	@Prop({ type: [String], default: [] })
 	follower: string[];
-
-	readonly readOnlyData: {
-		_id: string;
-		username: string;
-		email: string;
-		accountname: string;
-		intro: string;
-		image: string;
-	};
 }
 
 export type UserDocument = HydratedDocument<User>;
-const UserSchema = SchemaFactory.createForClass(User);
-UserSchema.virtual('readOnlyData').get(function (this: User) {
+export const UserSchema = SchemaFactory.createForClass(User);
+UserSchema.virtual('readOnlyData').get(function (this: UserDocument) {
 	return {
-		_id: this.id,
+		id: this.id,
 		email: this.email,
 		username: this.username,
 		accountname: this.accountname,
@@ -64,5 +56,3 @@ UserSchema.virtual('readOnlyData').get(function (this: User) {
 		image: this.image,
 	};
 });
-
-export default UserSchema;
