@@ -1,6 +1,7 @@
 import { Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
+import { UnauthorizedException } from '@nestjs/common';
 
 @Controller('login')
 export class AuthController {
@@ -9,6 +10,13 @@ export class AuthController {
 	@UseGuards(LocalAuthGuard)
 	@Post()
 	async logIn(@Req() req) {
-		return this.authService.login(req.user);
+		if (!req.user) {
+			throw new UnauthorizedException();
+		}
+		const jwt = await this.authService.login(req.user);
+		// res.cookie('Authorization', `Bearer ${jwt.accessToken}`);
+		const { _id, ...ret } = req.user;
+		void _id;
+		return { ...ret, token: jwt.accessToken };
 	}
 }

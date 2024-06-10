@@ -8,13 +8,19 @@ export class UsersService {
 	private readonly users = [
 		{
 			_id: 1,
-			email: 'john',
+			username: 'username1',
+			accountname: 'useraccount1',
+			email: 'john@gmail.comma',
 			password: 'changeme',
+			image: '',
 		},
 		{
 			_id: 2,
-			email: 'maria',
+			username: 'username2',
+			accountname: 'useraccount2',
+			email: 'maria@gmail.comma',
 			password: 'guess',
+			image: '111.png',
 		},
 	];
 
