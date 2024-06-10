@@ -1,5 +1,7 @@
+import { KeyObject } from 'crypto';
+
 export interface User {
-	readonly _id: string;
+	readonly _id: KeyObject;
 	email: string;
 	password: string;
 	username: string;

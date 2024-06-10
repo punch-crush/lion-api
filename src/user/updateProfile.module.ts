@@ -7,7 +7,7 @@ import { User, UserSchema } from './user.schema';
 @Module({
 	imports: [
 		MongooseModule.forFeature([
-			{ name: User.name, schema: UserSchema, collection: 'test' },
+			{ name: User.name, schema: UserSchema, collection: 'user' },
 		]),
 	],
 	providers: [UpdateProfileService],
