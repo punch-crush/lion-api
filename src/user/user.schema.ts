@@ -44,13 +44,22 @@ export class User extends Document {
 
 	@Prop({ type: [String], default: [] })
 	follower: string[];
+
+	readonly readOnlyData: {
+		_id: string;
+		username: string;
+		email: string;
+		accountname: string;
+		intro: string;
+		image: string;
+	};
 }
 
 export type UserDocument = HydratedDocument<User>;
 export const UserSchema = SchemaFactory.createForClass(User);
-UserSchema.virtual('readOnlyData').get(function (this: UserDocument) {
+UserSchema.virtual('readOnlyData').get(function (this: User) {
 	return {
-		id: this.id,
+		_id: this.id,
 		email: this.email,
 		username: this.username,
 		accountname: this.accountname,
