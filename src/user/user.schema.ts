@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { KeyObject } from 'crypto';
-import { Document } from 'mongoose';
+import { Document, HydratedDocument } from 'mongoose';
 
 @Schema()
 export class User extends Document {
@@ -47,4 +46,15 @@ export class User extends Document {
 	follower: string[];
 }
 
+export type UserDocument = HydratedDocument<User>;
 export const UserSchema = SchemaFactory.createForClass(User);
+UserSchema.virtual('readOnlyData').get(function (this: UserDocument) {
+	return {
+		id: this.id,
+		email: this.email,
+		username: this.username,
+		accountname: this.accountname,
+		intro: this.intro,
+		image: this.image,
+	};
+});
