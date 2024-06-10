@@ -5,7 +5,6 @@ import { RegisterUserDTO } from './registerUser.dto';
 import { Model } from 'mongoose';
 import bcrypt from 'bcrypt';
 
-// https://velog.io/@bin-lee/%ED%9A%8C%EC%9B%90%EA%B0%80%EC%9E%85-%EC%84%9C%EB%B9%84%EC%8A%A4-%EB%A1%9C%EC%A7%81-%EA%B8%B0%EB%A1%9D-NestJS
 @Injectable()
 export class UserService {
 	constructor(@InjectModel(User.name) private userModel: Model<User>) {}
@@ -13,8 +12,8 @@ export class UserService {
 	async register(user: RegisterUserDTO) {
 		const { email, accountname, password } = user.user;
 		const isEmailExist = await this.userModel.exists({ user: { email } });
-		const isAccountExist = await this.userModel.exists({ user: { accountname } });
-		if (isEmailExist || isAccountExist) {
+		const isAccountNameExist = await this.userModel.exists({ user: { accountname } });
+		if (isEmailExist || isAccountNameExist) {
 			throw new HttpException(
 				'이미 가입된 이메일 주소 또는 계정ID 입니다.',
 				HttpStatus.BAD_REQUEST,
@@ -26,7 +25,6 @@ export class UserService {
 			...user,
 			password: hashedPassword,
 		});
-		await newUser.save();
 		return {
 			message: '회원가입 성공',
 			user: newUser.readOnlyData,
@@ -42,8 +40,8 @@ export class UserService {
 	}
 
 	async validateAccountName(accountname: string) {
-		const isAccountExist = await this.userModel.exists({ user: { accountname } });
-		if (isAccountExist) {
+		const isAccountNameExist = await this.userModel.exists({ user: { accountname } });
+		if (isAccountNameExist) {
 			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
 		}
 		return { message: '사용 가능한 계정ID 입니다.' };
