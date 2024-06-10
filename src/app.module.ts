@@ -6,6 +6,9 @@ import { ConfigModule } from '@nestjs/config';
 import { UpdateProfileModule } from '@user/updateProfile.module';
 // import { ImageModule } from '@image/image.module';
 import { APP_PIPE } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
+import { UpdateProfileModule } from '@user/updateProfile.module';
+// import { ImageModule } from '@image/image.module';
 
 @Module({
 	imports: [
