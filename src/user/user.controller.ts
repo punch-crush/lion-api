@@ -15,7 +15,7 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Get('emailvalid')
-	async emailValid(@Query('email') email: string) {
+	async validateEmail(@Query('email') email: string) {
 		try {
 			return await this.userService.validateEmail(email);
 		} catch (error) {
@@ -24,7 +24,7 @@ export class UserController {
 	}
 
 	@Get('accountnamevalid')
-	async accountnameValid(@Query('accountname') accountname: string) {
+	async validateAccountName(@Query('accountname') accountname: string) {
 		try {
 			return await this.userService.validateAccountName(accountname);
 		} catch (error) {
@@ -32,8 +32,8 @@ export class UserController {
 		}
 	}
 
-	@Post('user')
-	register(@Body() body: RegisterUserDTO) {
-		return this.userService.register(body);
+	@Post()
+	async register(@Body() body: RegisterUserDTO) {
+		return await this.userService.register(body);
 	}
 }

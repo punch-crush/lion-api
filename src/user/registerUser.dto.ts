@@ -1,6 +1,6 @@
 import { IsString, IsEmail, IsNotEmpty, Matches, MinLength } from 'class-validator';
 
-export class RegisterUserDTO {
+export class UserDTO {
 	@IsString()
 	@IsNotEmpty({ message: '필수 입력사항을 입력해주세요' })
 	username: string;
@@ -27,4 +27,8 @@ export class RegisterUserDTO {
 
 	@IsString()
 	image: string; // 빈문자열일 경우 기본 이미지 넣어주기
+}
+
+export class RegisterUserDTO {
+	user: UserDTO;
 }
