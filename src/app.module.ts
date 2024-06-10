@@ -5,6 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { ImageModule } from '@image/image.module';
 import { APP_PIPE } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
+import { UserModule } from '@user/user.module';
 
 @Module({
 	imports: [
@@ -12,7 +14,7 @@ import { APP_PIPE } from '@nestjs/core';
 			isGlobal: true,
 		}),
 		MongooseModule.forRoot(process.env.DB_URL),
-		ImageModule,
+		UserModule,
 	],
 	controllers: [AppController],
 	providers: [
@@ -23,4 +25,4 @@ import { APP_PIPE } from '@nestjs/core';
 		},
 	],
 })
-export class AppModule {}
+export class AppModule { }
