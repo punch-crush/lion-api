@@ -1,9 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument } from 'mongoose';
-import { Document, HydratedDocument } from 'mongoose';
+import { KeyObject } from 'crypto';
+import { Document } from 'mongoose';
 
 @Schema()
 export class User extends Document {
+	@Prop({ type: KeyObject })
+	_id: KeyObject;
+
 	@Prop({ type: KeyObject })
 	_id: KeyObject;
 
