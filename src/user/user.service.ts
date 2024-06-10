@@ -11,12 +11,26 @@ export class UserService {
 	constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
 	async register(user: RegisterUserDTO) {
-		const hashedPassword = await await bcrypt.hash(user.password, 10);
+		const { email, accountname, password } = user.user;
+		const isEmailExist = await this.userModel.exists({ user: { email } });
+		const isAccountExist = await this.userModel.exists({ user: { accountname } });
+		if (isEmailExist || isAccountExist) {
+			throw new HttpException(
+				'이미 가입된 이메일 주소 또는 계정ID 입니다.',
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+
+		const hashedPassword = await await bcrypt.hash(password, 10);
 		const newUser = await this.userModel.create({
 			...user,
 			password: hashedPassword,
 		});
-		return newUser;
+		await newUser.save();
+		return {
+			message: '회원가입 성공',
+			user: newUser.readOnlyData,
+		};
 	}
 
 	async validateEmail(email: string) {
