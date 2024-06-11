@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import express from 'express';
-import path from 'path';
+import { ValidationPipe } from '@nestjs/common';
 
 declare const module: any;
 
@@ -12,6 +11,17 @@ async function bootstrap() {
 	app.use(express.static(path.join(__dirname, '..', 'uploads')));
 
 	await app.listen(port);
+	app.useGlobalPipes(
+		new ValidationPipe(),
+		// 	{
+		// 	whitelist: true,
+		// 	transform: true,
+		// 	transformOptions: {
+		// 		enableImplicitConversion: true,
+		// 	}
+		// }
+	);
+
 	app.useGlobalPipes(
 		new ValidationPipe(),
 		// 	{
