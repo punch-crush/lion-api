@@ -9,6 +9,8 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from '@user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { UpdateProfileModule } from '@user/updateProfile.module';
+// import { ImageModule } from '@image/image.module';
 
 @Module({
 	imports: [
