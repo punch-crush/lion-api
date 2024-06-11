@@ -1,10 +1,16 @@
-import mongoose from 'mongoose';
-import userSchema from '../user/user.schema';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-const commentSchema = new mongoose.Schema({
-	content: { type: String, required: true },
-	createdAt: { type: Date, default: Date.now },
-	author: { type: userSchema, required: true },
-});
+@Schema()
+export class Comment extends Document {
+	@Prop({ type: String, required: true })
+	content: string;
 
-export default mongoose.model('Comment', commentSchema);
+	@Prop({ type: Date, default: () => Date.now() })
+	createdAt: Date;
+
+	@Prop({ type: String, required: true })
+	authorId: string;
+}
+
+export const CommentSchema = SchemaFactory.createForClass(Comment);
