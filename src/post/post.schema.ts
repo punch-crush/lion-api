@@ -1,14 +1,25 @@
-import mongoose from 'mongoose';
-import { User } from '../user/user.schema';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-const postSchema = new mongoose.Schema({
-	content: { type: String },
-	image: { type: String, trim: true },
-	createdAt: { type: Date, default: Date.now },
-	updatedAt: { type: Date, default: Date.now },
-	hearted: { type: Array, default: [] },
-	comment: { type: Array, default: [] },
-	author: { type: User, required: true },
-});
+@Schema()
+export class Post extends Document {
+	@Prop({ type: String })
+	content: string;
 
-export default mongoose.model('Post', postSchema);
+	@Prop({ type: String, trim: true })
+	image: string;
+
+	@Prop({ type: Date, default: Date.now })
+	createdAt: Date;
+
+	@Prop({ type: Date, default: Date.now })
+	updatedAt: Date;
+
+	@Prop({ type: [String], default: [] })
+	comment: string[];
+
+	@Prop({ type: String, required: true })
+	authorId: string;
+}
+
+export const PostSchema = SchemaFactory.createForClass(Post);
