@@ -3,7 +3,10 @@ import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { APP_PIPE } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
+import { ImageModule } from '@image/image.module';
+import { APP_PIPE, RouterModule } from '@nestjs/core';
+import { routes } from './app.routes';
 
 @Module({
 	imports: [
@@ -11,6 +14,7 @@ import { APP_PIPE } from '@nestjs/core';
 			isGlobal: true,
 		}),
 		MongooseModule.forRoot(process.env.DB_URL),
+		RouterModule.register(routes),
 		ImageModule,
 	],
 	controllers: [AppController],
