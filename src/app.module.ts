@@ -3,7 +3,6 @@ import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule } from '@nestjs/config';
 import { ImageModule } from '@image/image.module';
 import { APP_PIPE, RouterModule } from '@nestjs/core';
 import { routes } from './app.routes';
@@ -18,6 +17,7 @@ import { UserModule } from '@user/user.module';
 		RouterModule.register(routes),
 		ImageModule,
 		UserModule,
+		ImageModule,
 	],
 	controllers: [AppController],
 	providers: [
