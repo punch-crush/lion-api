@@ -7,12 +7,13 @@ import { ImageModule } from '@image/image.module';
 import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from '@user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true,
-			load: [configuration],
 			cache: true,
 		}),
 		MongooseModule.forRoot(process.env.DB_URL),
