@@ -16,6 +16,9 @@ export class Post extends Document {
 	updatedAt: Date;
 
 	@Prop({ type: [String], default: [] })
+	heart: string[];
+
+	@Prop({ type: [String], default: [] })
 	comment: string[];
 
 	@Prop({ type: String, required: true })
