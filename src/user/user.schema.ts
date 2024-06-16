@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, HydratedDocument } from 'mongoose';
 
 @Schema()
 export class User extends Document {
@@ -15,10 +15,7 @@ export class User extends Document {
 	@Prop({ type: String, required: true, trim: true, minlength: 6 })
 	password: string;
 
-	@Prop({ type: String, required: true, trim: true })
-	token: string;
-
-	@Prop({ type: String, required: true, unique: true, trim: true })
+	@Prop({ type: String, unique: true, trim: true })
 	username: string;
 
 	@Prop({
@@ -41,6 +38,28 @@ export class User extends Document {
 
 	@Prop({ type: [String], default: [] })
 	follower: string[];
+
+	readonly readOnlyData: {
+		_id: string;
+		username: string;
+		email: string;
+		accountname: string;
+		intro: string;
+		image: string;
+	};
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export type UserDocument = HydratedDocument<User>;
+const UserSchema = SchemaFactory.createForClass(User);
+UserSchema.virtual('readOnlyData').get(function (this: User) {
+	return {
+		_id: this.id,
+		email: this.email,
+		username: this.username,
+		accountname: this.accountname,
+		intro: this.intro,
+		image: this.image,
+	};
+});
+
+export default UserSchema;

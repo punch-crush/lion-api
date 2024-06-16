@@ -118,7 +118,7 @@ export class AccountNameValidRequest {
 	accountname: string;
 }
 
-export class ProfileUpdateRequest extends UserCommon {
+export class ProfileResponse extends UserSearchResponse {
 	@IsString()
 	intro: string;
 

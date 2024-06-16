@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { User } from '../user/user.schema';
+import { HydratedDocument } from 'mongoose';
+
+export type ProductDocument = HydratedDocument<Product>;
 
 @Schema()
-export class Product extends Document {
+export class Product {
 	@Prop({ type: String, required: true, trim: true })
 	itemName: string;
 
@@ -16,9 +17,8 @@ export class Product extends Document {
 	@Prop({ type: String, required: true, trim: true })
 	itemImage: string;
 
-	@Prop({ type: Types.ObjectId, ref: User.name, required: true })
-	author: User;
+	@Prop({ type: String, required: true })
+	author: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
-ProductSchema.index({ itemName: 'text' });

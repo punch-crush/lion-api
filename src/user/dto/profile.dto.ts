@@ -1,4 +1,4 @@
-import { ProfileUpdateRequest, UserInfoCommon } from '@user/dto/user-base.dto';
+import { ProfileResponse, UserInfoCommon } from '@user/dto/user-base.dto';
 import { Type } from 'class-transformer';
 import { ValidateNested } from 'class-validator';
 
@@ -10,8 +10,8 @@ class ProfileCommon {
 
 export class ProfileUpdateRequestDto {
 	@ValidateNested()
-	@Type(() => ProfileUpdateRequest)
-	user: ProfileUpdateRequest;
+	@Type(() => ProfileResponse)
+	user: ProfileResponse;
 }
 
 export class ProfileUpdateResponseDto {
