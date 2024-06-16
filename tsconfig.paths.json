@@ -9,7 +9,8 @@
 			"@image/*": ["src/image/*"],
 			"@middleware/*": ["src/middleware/*"],
 			"@utils/*": ["src/utils/*"],
-			"@config/*": ["src/config/*"]
+			"@config/*": ["src/config/*"],
+			"@auth/*": ["src/auth/*"]
 		}
 	}
 }
