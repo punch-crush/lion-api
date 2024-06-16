@@ -1,5 +1,3 @@
-import { UserOtherProfileRes } from '@user/user.dto';
-
 export interface PostDTO {
 	readonly _id: string;
 	content: string;
@@ -9,5 +7,5 @@ export interface PostDTO {
 	hearted: boolean;
 	heartCount: number;
 	commentCount: number;
-	author: UserOtherProfileRes;
+	authorId: string;
 }
