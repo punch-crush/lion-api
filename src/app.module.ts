@@ -19,7 +19,6 @@ import { ConfigModule } from '@nestjs/config';
 		}),
 		MongooseModule.forRoot(process.env.DB_URL),
 		RouterModule.register(routes),
-		ImageModule,
 		UserModule,
 		ImageModule,
 		AuthModule,
