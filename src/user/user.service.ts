@@ -1,15 +1,15 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { RegisterUserDTO } from './registerUser.dto';
 import { Model } from 'mongoose';
 import bcrypt from 'bcrypt';
+import { RegisterRequestDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
 	constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-	async register(user: RegisterUserDTO) {
+	async register(user: RegisterRequestDto) {
 		const { email, accountname, password } = user.user;
 		const isEmailExist = await this.userModel.exists({ user: { email } });
 		const isAccountNameExist = await this.userModel.exists({ user: { accountname } });
