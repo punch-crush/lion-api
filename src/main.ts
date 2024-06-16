@@ -1,13 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import express from 'express';
+import path from 'path';
+import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 
 declare const module: any;
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
-	const port = process.env.PORT || 8000;
+	// const port = process.env.PORT || 8000;
 
+	const configService = app.get(ConfigService);
+	const port = configService.get('port') || 8000;
 	app.use(express.static(path.join(__dirname, '..', 'uploads')));
 
 	await app.listen(port);
