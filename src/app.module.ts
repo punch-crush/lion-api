@@ -3,7 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ImageModule } from '@image/image.module';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_PIPE, RouterModule } from '@nestjs/core';
+import { routes } from './app.routes';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from '@user/user.module';
 
@@ -13,6 +14,7 @@ import { UserModule } from '@user/user.module';
 			isGlobal: true,
 		}),
 		MongooseModule.forRoot(process.env.DB_URL),
+		RouterModule.register(routes),
 		UserModule,
 		ImageModule,
 	],
