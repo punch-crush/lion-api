@@ -15,10 +15,7 @@ export class User extends Document {
 	@Prop({ type: String, required: true, trim: true, minlength: 6 })
 	password: string;
 
-	@Prop({ type: String, required: true, trim: true })
-	token: string;
-
-	@Prop({ type: String, required: true, unique: true, trim: true })
+	@Prop({ type: String, unique: true, trim: true })
 	username: string;
 
 	@Prop({
