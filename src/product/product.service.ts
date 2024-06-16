@@ -17,16 +17,20 @@ export class ProductService {
 		id: string,
 	): Promise<ProductResponse> {
 		const product = await this.productModel.create({ ...productDTO.product, author: id });
-		const authorDocument = await this.userModel.findOne({ _id: id }).exec();
+		const productDocument = await this.productModel.findOne({ _id: product._id }).lean();
+		//[ ] password 제외하고 가져옴
+		const authorDocument = await this.userModel
+			.findOne({ _id: id }, { password: 0 })
+			.lean();
 		const authorRes = {
 			...authorDocument,
 			followerCount: authorDocument.follower.length,
 			followingCount: authorDocument.following.length,
-			isfollow: false, // 추후 수정 필요
+			isfollow: false, //FIXME 추후 수정 필요
 		};
 		const newProduct: ProductResponse = {
 			product: {
-				...product,
+				...productDocument,
 				author: authorRes,
 			},
 		};
@@ -34,13 +38,13 @@ export class ProductService {
 	}
 
 	async getProducts(accountname: string): Promise<ProductListDTO> {
-		const user = await this.userModel.findOne({ accountname });
-		const products = await this.productModel.find({ author: user._id });
+		const user = await this.userModel.findOne({ accountname }, { password: 0 }).lean();
+		const products = await this.productModel.find({ author: user._id }).lean();
 		const author = {
 			...user,
 			followerCount: user.follower.length,
 			followingCount: user.following.length,
-			isfollow: false, // 추후 수정 필요
+			isfollow: false, //FIXME 추후 수정 필요
 		};
 		const productsRes = products.map(product => {
 			return {
