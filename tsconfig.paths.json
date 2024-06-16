@@ -8,7 +8,8 @@
 			"@product/*": ["src/product/*"],
 			"@image/*": ["src/image/*"],
 			"@middleware/*": ["src/middleware/*"],
-			"@utils/*": ["src/utils/*"]
+			"@utils/*": ["src/utils/*"],
+			"@config/*": ["src/config/*"]
 		}
 	}
 }
