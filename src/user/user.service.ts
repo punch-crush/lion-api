@@ -10,19 +10,22 @@ export class UserService {
 	constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
 	async register(user: RegisterRequestDto) {
-		const { email, accountname, password } = user.user;
-		const isEmailExist = await this.userModel.exists({ user: { email } });
-		const isAccountNameExist = await this.userModel.exists({ user: { accountname } });
-		if (isEmailExist || isAccountNameExist) {
-			throw new HttpException(
-				'이미 가입된 이메일 주소 또는 계정ID 입니다.',
-				HttpStatus.BAD_REQUEST,
-			);
+		const { email, accountname, username, password } = user.user;
+		if (!email || !accountname || !username || !password) {
+			throw new HttpException('필수 입력사항을 입력해주세요.', HttpStatus.BAD_REQUEST);
+		}
+		const isEmailExist = await this.userModel.exists({ email });
+		if (isEmailExist) {
+			throw new HttpException('이미 가입된 이메일 주소 입니다.', HttpStatus.BAD_REQUEST);
+		}
+		const isAccountNameExist = await this.userModel.exists({ accountname });
+		if (isAccountNameExist) {
+			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
 		}
 
 		const hashedPassword = await await bcrypt.hash(password, 10);
 		const newUser = await this.userModel.create({
-			...user,
+			...user.user,
 			password: hashedPassword,
 		});
 		return {
@@ -32,7 +35,7 @@ export class UserService {
 	}
 
 	async validateEmail(email: string) {
-		const isEmailExist = await this.userModel.exists({ user: { email } });
+		const isEmailExist = await this.userModel.exists({ email });
 		if (isEmailExist) {
 			throw new HttpException('이미 가입된 이메일 주소 입니다.', HttpStatus.BAD_REQUEST);
 		}
@@ -40,7 +43,7 @@ export class UserService {
 	}
 
 	async validateAccountName(accountname: string) {
-		const isAccountNameExist = await this.userModel.exists({ user: { accountname } });
+		const isAccountNameExist = await this.userModel.exists({ accountname });
 		if (isAccountNameExist) {
 			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
 		}
