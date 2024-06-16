@@ -1,14 +1,17 @@
 import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
-import { RegisterUserDTO } from './registerUser.dto';
 import { UserService } from './user.service';
-import { ValidateAccountNameDto, ValidateEmailDto } from './validateUser.dto';
+import {
+	AccountNameValidRequestDto,
+	EmailValidRequestDto,
+	RegisterRequestDto,
+} from './dto/user.dto';
 
 @Controller('user')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Post('emailvalid')
-	async validateEmail(@Body() user: ValidateEmailDto) {
+	async validateEmail(@Body() user: EmailValidRequestDto) {
 		try {
 			const { email } = user.user;
 			return await this.userService.validateEmail(email);
@@ -18,7 +21,7 @@ export class UserController {
 	}
 
 	@Post('accountnamevalid')
-	async validateAccountName(@Body() user: ValidateAccountNameDto) {
+	async validateAccountName(@Body() user: AccountNameValidRequestDto) {
 		try {
 			const { accountname } = user.user;
 			return await this.userService.validateAccountName(accountname);
@@ -28,7 +31,7 @@ export class UserController {
 	}
 
 	@Post()
-	async register(@Body() body: RegisterUserDTO) {
+	async register(@Body() body: RegisterRequestDto) {
 		return await this.userService.register(body);
 	}
 }
