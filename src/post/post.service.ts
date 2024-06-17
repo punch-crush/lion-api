@@ -124,4 +124,17 @@ export class PostService {
 			post: postResponse,
 		};
 	}
+
+	async deletePost(postId: string, userId: string) {
+		const deletedPost = await this.postModel.findByIdAndDelete(postId);
+		if (!deletedPost) {
+			throw new HttpException('게시물을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
+		}
+		if (deletedPost.author !== userId) {
+			throw new HttpException('삭제 권한이 없습니다.', HttpStatus.UNAUTHORIZED);
+		}
+		return {
+			message: '게시물이 성공적으로 삭제되었습니다.',
+		};
+	}
 }

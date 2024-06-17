@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	Param,
 	Post,
@@ -104,5 +105,17 @@ export class PostController {
 			throw new UnauthorizedException();
 		}
 		return this.postService.updatePost(postId, req.user._id, post.post);
+	}
+
+	@Delete(':post_id')
+	@UseGuards(JwtAuthGuard)
+	async deletePost(
+		@Param('post_id') postId: string,
+		@Req() req,
+	): Promise<{ message: string }> {
+		if (!req.user) {
+			throw new UnauthorizedException();
+		}
+		return this.postService.deletePost(postId, req.user._id);
 	}
 }
