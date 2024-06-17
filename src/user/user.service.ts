@@ -30,7 +30,7 @@ export class UserService {
 		});
 		return {
 			message: '회원가입 성공',
-			user: newUser.readOnlyData,
+			user: newUser.registerData,
 		};
 	}
 
