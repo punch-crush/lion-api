@@ -6,16 +6,16 @@ import {
 	RegisterRequestDto,
 } from './dto/user.dto';
 
-@Controller('user')
+@Controller('')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
-	@Post()
+	@Post('/')
 	async register(@Body() body: RegisterRequestDto) {
 		return await this.userService.register(body);
 	}
 
-	@Post('emailvalid')
+	@Post('/emailvalid')
 	async validateEmail(@Body() user: EmailValidRequestDto) {
 		try {
 			const { email } = user.user;
@@ -29,7 +29,7 @@ export class UserController {
 		}
 	}
 
-	@Post('accountnamevalid')
+	@Post('/accountnamevalid')
 	async validateAccountName(@Body() user: AccountNameValidRequestDto) {
 		try {
 			const { accountname } = user.user;
