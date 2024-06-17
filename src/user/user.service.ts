@@ -63,7 +63,7 @@ export class UserService {
 			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
 		}
 
-		const hashedPassword = await await bcrypt.hash(password, 10);
+		const hashedPassword = await bcrypt.hash(password, 10);
 		const newUser = await this.userModel.create({
 			...user.user,
 			password: hashedPassword,
@@ -103,5 +103,44 @@ export class UserService {
 		const { intro, ...userData } = user.readOnlyData;
 		void intro;
 		return userData;
+	}
+
+	async getMyInfo(email: string) {
+		const user = await this.userModel.findOne({ email });
+		if (!user) {
+			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
+		}
+		return {
+			user: user.readOnlyDataWithFollow,
+		};
+	}
+
+	async updateProfile(
+		email: string,
+		newUserInfo: ProfileUpdateRequestDto,
+	): Promise<ProfileUpdateResponseDto> {
+		const { username, accountname, intro, image } = newUserInfo.user;
+		if (!accountname || !username) {
+			throw new HttpException('필수 입력사항을 입력해주세요.', HttpStatus.BAD_REQUEST);
+		}
+		const isAccountNameExist = await this.userModel.exists({ accountname });
+		if (isAccountNameExist) {
+			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
+		}
+
+		const user = await this.userModel.findOne({ email });
+		if (!user) {
+			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
+		}
+		user.username = username;
+		user.accountname = accountname;
+		user.intro = intro;
+		user.image = image || 'default image';
+
+		await user.save();
+
+		return {
+			user: user.profileUpdateResponse,
+		};
 	}
 }
