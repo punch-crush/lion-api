@@ -110,9 +110,11 @@ export class UserService {
 		if (!user) {
 			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
 		}
-		return {
-			user: user.readOnlyDataWithFollow,
-		};
+		return [
+			{
+				user: user.readOnlyDataWithFollow,
+			},
+		];
 	}
 
 	async updateProfile(
