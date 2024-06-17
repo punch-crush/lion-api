@@ -10,6 +10,7 @@ import {
 	PostSingleResponseDto,
 } from './dto/post.dto';
 import { User, UserDocument } from '@user/user.schema';
+import { getIsFollow } from 'src/util/helper';
 
 @Injectable()
 export class PostService {
@@ -18,34 +19,48 @@ export class PostService {
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
 	) {}
 
-	async getSinglePostResponse(post: PostDocument): Promise<PostResponse> {
+	async getSinglePostResponse(
+		post: PostDocument,
+		currUserId: string,
+	): Promise<PostResponse> {
 		const author = await this.userModel.findById(post.author);
 		if (!author) {
 			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
 		}
 		const newPost: PostResponse = {
 			...post.readOnlyData,
-			author: author.readOnlyData,
+			author: {
+				...author.readOnlyData,
+				isfollow: getIsFollow(author, currUserId),
+			},
 		};
 		return newPost;
 	}
 
-	async getPostListResponse(posts: PostDocument[]): Promise<PostResponse[]> {
+	async getPostListResponse(
+		posts: PostDocument[],
+		currUserId: string,
+	): Promise<PostResponse[]> {
 		const newPosts = await Promise.all(
-			posts.map(post => this.getSinglePostResponse(post)),
+			posts.map(post => this.getSinglePostResponse(post, currUserId)),
 		);
 		return newPosts;
 	}
 
-	async getAllPost(limit: number, skip: number): Promise<PostListResponseDto> {
+	async getAllPost(
+		userId: string,
+		limit: number,
+		skip: number,
+	): Promise<PostListResponseDto> {
 		const posts = await this.postModel.find().limit(limit).skip(skip);
-		const postResponse = await this.getPostListResponse(posts);
+		const postResponse = await this.getPostListResponse(posts, userId);
 		return {
 			posts: postResponse,
 		};
 	}
 
 	async getUserPost(
+		userId: string,
 		accountname: string,
 		limit: number,
 		skip: number,
@@ -58,7 +73,7 @@ export class PostService {
 			.find({ author: author._id })
 			.limit(limit)
 			.skip(skip);
-		const postResponse = await this.getPostListResponse(posts);
+		const postResponse = await this.getPostListResponse(posts, userId);
 		return {
 			post: postResponse,
 		};
@@ -69,24 +84,25 @@ export class PostService {
 		limit: number,
 		skip: number,
 	): Promise<PostListResponseDto> {
-		const author = await this.userModel.findById(userId);
+		const author = await this.userModel.findOne({ _id: userId });
 		if (!author) {
 			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
 		}
 		const followingIds = author.following;
+		console.log(followingIds);
 		const posts = await this.postModel
-			.find({ author: { $in: [followingIds] } })
+			.find({ author: { $in: followingIds } })
 			.limit(limit)
 			.skip(skip);
-		const postResponse = await this.getPostListResponse(posts);
+		const postResponse = await this.getPostListResponse(posts, userId);
 		return {
 			posts: postResponse,
 		};
 	}
 
-	async getPostDetail(postId: string): Promise<PostSingleResponseDto> {
+	async getPostDetail(userId: string, postId: string): Promise<PostSingleResponseDto> {
 		const post = await this.postModel.findOne({ _id: postId });
-		const postResponse = await this.getSinglePostResponse(post);
+		const postResponse = await this.getSinglePostResponse(post, userId);
 		return {
 			post: postResponse,
 		};
@@ -99,7 +115,7 @@ export class PostService {
 		}
 		const createdPost = new this.postModel({ ...post, author: userId });
 		await createdPost.save();
-		const postResponse = await this.getSinglePostResponse(createdPost);
+		const postResponse = await this.getSinglePostResponse(createdPost, userId);
 		return {
 			post: postResponse,
 		};
@@ -124,7 +140,7 @@ export class PostService {
 				HttpStatus.UNAUTHORIZED,
 			);
 		}
-		const postResponse = await this.getSinglePostResponse(updatedPost);
+		const postResponse = await this.getSinglePostResponse(updatedPost, userId);
 		return {
 			post: postResponse,
 		};

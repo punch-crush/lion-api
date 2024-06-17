@@ -37,7 +37,7 @@ export class PostController {
 		}
 		const limitValue = limit ? parseInt(limit) : 10;
 		const skipValue = skip ? parseInt(skip) : 0;
-		return this.postService.getAllPost(limitValue, skipValue);
+		return this.postService.getAllPost(req.user._id, limitValue, skipValue);
 	}
 
 	@Get('/feed')
@@ -52,7 +52,7 @@ export class PostController {
 		}
 		const limitValue = limit ? parseInt(limit) : 10;
 		const skipValue = skip ? parseInt(skip) : 0;
-		return this.postService.getFeedPost(req.user.id, limitValue, skipValue);
+		return this.postService.getFeedPost(req.user._id, limitValue, skipValue);
 	}
 
 	@Get(':accountname/userpost')
@@ -68,7 +68,7 @@ export class PostController {
 		}
 		const limitValue = limit ? parseInt(limit) : 10;
 		const skipValue = skip ? parseInt(skip) : 0;
-		return this.postService.getUserPost(accountname, limitValue, skipValue);
+		return this.postService.getUserPost(req.user._id, accountname, limitValue, skipValue);
 	}
 
 	@Get(':post_id')
@@ -80,7 +80,7 @@ export class PostController {
 		if (!req.user) {
 			throw new UnauthorizedException();
 		}
-		return this.postService.getPostDetail(postId);
+		return this.postService.getPostDetail(req.user._id, postId);
 	}
 
 	@Post('/')
