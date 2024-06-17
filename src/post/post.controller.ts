@@ -14,6 +14,7 @@ import {
 import { PostService } from './post.service';
 import {
 	PostListResponseDto,
+	PostReportResponseDto,
 	PostRequestDto,
 	PostResponseDto,
 	PostSingleResponseDto,
@@ -117,5 +118,17 @@ export class PostController {
 			throw new UnauthorizedException();
 		}
 		return this.postService.deletePost(postId, req.user._id);
+	}
+
+	@Post(':post_id/report')
+	@UseGuards(JwtAuthGuard)
+	async reportPost(
+		@Param('post_id') postId: string,
+		@Req() req,
+	): Promise<PostReportResponseDto> {
+		if (!req.user) {
+			throw new UnauthorizedException();
+		}
+		return this.postService.reportPost(postId);
 	}
 }

@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { PostRequest, PostResponse } from './dto/post-base.dto';
 import {
 	PostListResponseDto,
+	PostReportResponseDto,
 	PostResponseDto,
 	PostSingleResponseDto,
 } from './dto/post.dto';
@@ -104,7 +105,11 @@ export class PostService {
 		};
 	}
 
-	async updatePost(postId: string, userId: string, post: PostRequest) {
+	async updatePost(
+		postId: string,
+		userId: string,
+		post: PostRequest,
+	): Promise<PostSingleResponseDto> {
 		const updatedPost = await this.postModel.findByIdAndUpdate(
 			postId,
 			{ ...post, updatedAt: new Date() },
@@ -135,6 +140,18 @@ export class PostService {
 		}
 		return {
 			message: '게시물이 성공적으로 삭제되었습니다.',
+		};
+	}
+
+	async reportPost(postId: string): Promise<PostReportResponseDto> {
+		const reportedPost = await this.postModel.findById(postId);
+		if (!reportedPost) {
+			throw new HttpException('게시물을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
+		}
+		return {
+			report: {
+				post: postId,
+			},
 		};
 	}
 }
