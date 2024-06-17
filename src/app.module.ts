@@ -17,7 +17,7 @@ import { PostModule } from '@post/post.module';
 			isGlobal: true,
 			cache: true,
 		}),
-		MongooseModule.forRoot(process.env.DB_URL),
+		MongooseModule.forRoot(process.env.DB_URL + process.env.DB_DATABASE),
 		RouterModule.register(routes),
 		UserModule,
 		ImageModule,
