@@ -49,7 +49,7 @@ export class UserService {
 		}
 		return { message: '사용 가능한 계정ID 입니다.' };
 	}
-  
+
 	async findUser(email: string, password: string) {
 		const user = await this.userModel.findOne({ email });
 		if (!user) {
@@ -60,5 +60,31 @@ export class UserService {
 			throw new HttpException('비밀번호가 일치하지 않습니다.', HttpStatus.UNAUTHORIZED);
 		}
 		return { _id: user._id, email: user.email };
+	}
+
+	async searchUsers(keyword: string) {
+		const users = await this.userModel
+			.find({
+				$or: [
+					{ username: { $regex: keyword, $options: 'i' } },
+					{ accountname: { $regex: keyword, $options: 'i' } },
+				],
+			})
+			.select('_id username accountname following follower')
+			.lean()
+			.exec();
+		if (!users || users.length === 0) {
+			throw new HttpException('검색한 유저 정보가 없습니다.', HttpStatus.NOT_FOUND);
+		}
+
+		const newUsers = users.map(user => {
+			return {
+				...user,
+				followerCount: user.follower.length,
+				followingCount: user.following.length,
+			};
+		});
+
+		return newUsers;
 	}
 }
