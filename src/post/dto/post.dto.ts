@@ -20,7 +20,7 @@ export class PostResponseDto {
 	post: PostResponse[];
 }
 
-export class PostListResponseDtp {
+export class PostListResponseDto {
 	@ValidateNested()
 	@Type(() => PostResponse)
 	posts: PostResponse[];

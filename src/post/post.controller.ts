@@ -1,14 +1,82 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Get,
+	Param,
+	Post,
+	Query,
+	Req,
+	UnauthorizedException,
+	UseGuards,
+} from '@nestjs/common';
 import { PostService } from './post.service';
-import { PostRequest } from './dto/post-base.dto';
-import { PostSingleResponseDto } from './dto/post.dto';
+import {
+	PostListResponseDto,
+	PostRequestDto,
+	PostResponseDto,
+	PostSingleResponseDto,
+} from './dto/post.dto';
+import { JwtAuthGuard } from '@auth/jwt-auth.guard';
 
-@Controller('post')
+@Controller()
 export class PostController {
 	constructor(private readonly postService: PostService) {}
 
-	@Post()
-	async createPost(@Body() post: PostRequest): Promise<PostSingleResponseDto> {
-		return this.postService.createPost(post);
+	@Get('/')
+	@UseGuards(JwtAuthGuard)
+	async getAllPost(
+		@Query('limit') limit: string,
+		@Query('skip') skip: string,
+		@Req() req,
+	): Promise<PostListResponseDto> {
+		if (!req.user) {
+			throw new UnauthorizedException();
+		}
+		const limitValue = limit ? parseInt(limit) : 10;
+		const skipValue = skip ? parseInt(skip) : 0;
+		return this.postService.getAllPost(limitValue, skipValue);
+	}
+
+	@Get('/feed')
+	@UseGuards(JwtAuthGuard)
+	async getFeedPost(
+		@Query('limit') limit: string,
+		@Query('skip') skip: string,
+		@Req() req,
+	): Promise<PostListResponseDto> {
+		if (!req.user) {
+			throw new UnauthorizedException();
+		}
+		const limitValue = limit ? parseInt(limit) : 10;
+		const skipValue = skip ? parseInt(skip) : 0;
+		return this.postService.getFeedPost(req.user.id, limitValue, skipValue);
+	}
+
+	@Get(':accountname/userpost')
+	@UseGuards(JwtAuthGuard)
+	async getUserPost(
+		@Param('accountname') accountname: string,
+		@Query('limit') limit: string,
+		@Query('skip') skip: string,
+		@Req() req,
+	): Promise<PostResponseDto> {
+		if (!req.user) {
+			throw new UnauthorizedException();
+		}
+		const limitValue = limit ? parseInt(limit) : 10;
+		const skipValue = skip ? parseInt(skip) : 0;
+		return this.postService.getUserPost(accountname, limitValue, skipValue);
+	}
+
+	@Post('/')
+	@UseGuards(JwtAuthGuard)
+	async createPost(
+		@Body() post: PostRequestDto,
+		@Req() req,
+	): Promise<PostSingleResponseDto> {
+		if (!req.user) {
+			throw new UnauthorizedException();
+		}
+		return this.postService.createPost(post.post, req.user._id);
 	}
 }

@@ -1,23 +1,16 @@
 import { ProfileResponse } from '@user/dto/user-base.dto';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsString } from 'class-validator';
 
 export class PostRequest {
 	@IsString()
-	@IsNotEmpty({ message: '게시글 내용을 입력해주세요' })
 	content: string;
 
 	@IsString()
 	image: string;
 }
 
-export class PostResponse {
-	@IsString()
-	content: string;
-
-	@IsString()
-	image: string;
-
+export class PostResponse extends PostRequest {
 	@IsString()
 	createdAt: string;
 
