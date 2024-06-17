@@ -118,10 +118,26 @@ export class AccountNameValidRequest {
 	accountname: string;
 }
 
-export class ProfileResponse extends UserSearchResponse {
+export class ProfileUpdateRequest extends UserCommon {
 	@IsString()
 	intro: string;
 
 	@IsString()
 	image: string;
+}
+
+export class ProfileUpdateResponse extends ProfileUpdateRequest {
+	@IsArray()
+	@IsString({ each: true })
+	follower: string[];
+
+	@IsArray()
+	@IsString({ each: true })
+	following: string[];
+
+	@IsNumber()
+	followerCount: number;
+
+	@IsNumber()
+	followingCount: number;
 }
