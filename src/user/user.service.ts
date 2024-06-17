@@ -49,7 +49,7 @@ export class UserService {
 		}
 		return { message: '사용 가능한 계정ID 입니다.' };
 	}
-  
+
 	async findUser(email: string, password: string) {
 		const user = await this.userModel.findOne({ email });
 		if (!user) {
