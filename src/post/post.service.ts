@@ -17,8 +17,8 @@ export class PostService {
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
 	) {}
 
-	async getSinglePostResponse(post: PostDocument, id: string): Promise<PostResponse> {
-		const author = await this.userModel.findById(id);
+	async getSinglePostResponse(post: PostDocument): Promise<PostResponse> {
+		const author = await this.userModel.findById(post.author);
 		if (!author) {
 			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
 		}
@@ -31,7 +31,7 @@ export class PostService {
 
 	async getPostListResponse(posts: PostDocument[]): Promise<PostResponse[]> {
 		const newPosts = await Promise.all(
-			posts.map(post => this.getSinglePostResponse(post, post.author)),
+			posts.map(post => this.getSinglePostResponse(post)),
 		);
 		return newPosts;
 	}
@@ -83,6 +83,14 @@ export class PostService {
 		};
 	}
 
+	async getPostDetail(postId: string): Promise<PostSingleResponseDto> {
+		const post = await this.postModel.findOne({ _id: postId });
+		const postResponse = await this.getSinglePostResponse(post);
+		return {
+			post: postResponse,
+		};
+	}
+
 	async createPost(post: PostRequest, id: string): Promise<PostSingleResponseDto> {
 		const { content, image } = post;
 		if (!content && !image) {
@@ -90,7 +98,7 @@ export class PostService {
 		}
 		const createdPost = new this.postModel({ ...post, author: id });
 		await createdPost.save();
-		const postResponse = await this.getSinglePostResponse(createdPost, id);
+		const postResponse = await this.getSinglePostResponse(createdPost);
 		return {
 			post: postResponse,
 		};

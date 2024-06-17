@@ -68,6 +68,18 @@ export class PostController {
 		return this.postService.getUserPost(accountname, limitValue, skipValue);
 	}
 
+	@Get(':post_id')
+	@UseGuards(JwtAuthGuard)
+	async getPostDetail(
+		@Param('post_id') postId: string,
+		@Req() req,
+	): Promise<PostSingleResponseDto> {
+		if (!req.user) {
+			throw new UnauthorizedException();
+		}
+		return this.postService.getPostDetail(postId);
+	}
+
 	@Post('/')
 	@UseGuards(JwtAuthGuard)
 	async createPost(
