@@ -64,11 +64,11 @@ export class PostService {
 	}
 
 	async getFeedPost(
-		id: string,
+		userId: string,
 		limit: number,
 		skip: number,
 	): Promise<PostListResponseDto> {
-		const author = await this.userModel.findById(id);
+		const author = await this.userModel.findById(userId);
 		if (!author) {
 			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
 		}
@@ -91,14 +91,35 @@ export class PostService {
 		};
 	}
 
-	async createPost(post: PostRequest, id: string): Promise<PostSingleResponseDto> {
+	async createPost(userId: string, post: PostRequest): Promise<PostSingleResponseDto> {
 		const { content, image } = post;
 		if (!content && !image) {
 			throw new HttpException('내용 또는 이미지를 입력해주세요.', HttpStatus.BAD_REQUEST);
 		}
-		const createdPost = new this.postModel({ ...post, author: id });
+		const createdPost = new this.postModel({ ...post, author: userId });
 		await createdPost.save();
 		const postResponse = await this.getSinglePostResponse(createdPost);
+		return {
+			post: postResponse,
+		};
+	}
+
+	async updatePost(postId: string, userId: string, post: PostRequest) {
+		const updatedPost = await this.postModel.findByIdAndUpdate(
+			postId,
+			{ ...post, updatedAt: new Date() },
+			{ new: true },
+		);
+		if (!updatedPost) {
+			throw new HttpException('존재하지 않는 게시글입니다.', HttpStatus.NOT_FOUND);
+		}
+		if (updatedPost.author !== userId) {
+			throw new HttpException(
+				'잘못된 요청입니다. 로그인 정보를 확인하세요.',
+				HttpStatus.UNAUTHORIZED,
+			);
+		}
+		const postResponse = await this.getSinglePostResponse(updatedPost);
 		return {
 			post: postResponse,
 		};

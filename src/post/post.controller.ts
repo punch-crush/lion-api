@@ -4,6 +4,7 @@ import {
 	Get,
 	Param,
 	Post,
+	Put,
 	Query,
 	Req,
 	UnauthorizedException,
@@ -89,6 +90,19 @@ export class PostController {
 		if (!req.user) {
 			throw new UnauthorizedException();
 		}
-		return this.postService.createPost(post.post, req.user._id);
+		return this.postService.createPost(req.user._id, post.post);
+	}
+
+	@Put(':post_id')
+	@UseGuards(JwtAuthGuard)
+	async updatePost(
+		@Param('post_id') postId: string,
+		@Body() post: PostRequestDto,
+		@Req() req,
+	): Promise<PostSingleResponseDto> {
+		if (!req.user) {
+			throw new UnauthorizedException();
+		}
+		return this.postService.updatePost(postId, req.user._id, post.post);
 	}
 }
