@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '@user/user.schema';
 import { Product, ProductDocument } from './product.schema';
 import {
@@ -57,13 +57,13 @@ export class ProductService {
 
 	async getProductList(
 		accountname: string,
-		userId: string,
 		limit?: number,
 		skip?: number,
 	): Promise<ProductListDTO> {
 		const user = await this.userModel.findOne({ accountname });
+		const userId = user._id.toString();
 		const products = await this.productModel
-			.find({ author: user._id })
+			.find({ author: userId })
 			.limit(limit)
 			.skip(skip);
 
@@ -74,5 +74,32 @@ export class ProductService {
 			data: products.length,
 			product: productsRes,
 		};
+	}
+
+	async getProductId(postId: string): Promise<ProductDocument> {
+		if (!Types.ObjectId.isValid(postId)) {
+			throw new HttpException('존재하지 않는 상품입니다.', HttpStatus.NOT_FOUND);
+		}
+		const product = await this.productModel.findById(postId);
+		if (!product) {
+			throw new HttpException('존재하지 않는 상품입니다.', HttpStatus.NOT_FOUND);
+		}
+		return product;
+	}
+
+	async getProductDetail(productId: string): Promise<ProductResponse> {
+		const product = await this.getProductId(productId);
+		const author = await this.userModel.findById(product.author);
+		const isfollow = author.follower.includes(author.accountname);
+		const productRes = {
+			product: {
+				...product.readOnlyData,
+				author: {
+					...author.readOnlyData,
+					isfollow,
+				},
+			},
+		};
+		return productRes;
 	}
 }
