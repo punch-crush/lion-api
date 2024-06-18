@@ -8,6 +8,7 @@ import {
 	UnauthorizedException,
 	UseGuards,
 	Header,
+	Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDTO } from './product.dto';
@@ -32,7 +33,20 @@ export class ProductController {
 	@Get('/:accountname')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
-	async getProducts(@Param('accountname') accountname: string) {
-		return this.productService.getProducts(accountname);
+	async getProductList(
+		@Query('limit') limit: string,
+		@Query('skip') skip: string,
+		@Param('accountname') accountname: string,
+	) {
+		const limitNumber = limit ? parseInt(limit) : 10;
+		const skipNumber = skip ? parseInt(skip) : 0;
+		return this.productService.getProductList(accountname, limitNumber, skipNumber);
+	}
+
+	@Get('/detail/:productId')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	async getProductDetail(@Param('productId') productId: string) {
+		return this.productService.getProductDetail(productId);
 	}
 }
