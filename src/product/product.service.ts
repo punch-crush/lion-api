@@ -22,21 +22,14 @@ export class ProductService {
 		id: string,
 	): Promise<ProductResponse> {
 		const product = await this.productModel.create({ ...productDTO.product, author: id });
-		const productDocument = await this.productModel.findOne({ _id: product._id }).lean();
-		//[ ] password 제외하고 가져옴
-		const authorDocument = await this.userModel
-			.findOne({ _id: id }, { password: 0 })
-			.lean();
-		const authorRes = {
-			...authorDocument,
-			followerCount: authorDocument.follower.length,
-			followingCount: authorDocument.following.length,
-			isfollow: false, //FIXME 추후 수정 필요
-		};
+		const productDocument = await this.productModel.findById(product._id);
+
+		const author = await this.userModel.findById(id);
+
 		const newProduct: ProductResponse = {
 			product: {
 				...productDocument,
-				author: authorRes,
+				author: author.readOnlyData,
 			},
 		};
 		return newProduct;
@@ -46,8 +39,8 @@ export class ProductService {
 		product: ProductDocument,
 		userId: string,
 	): Promise<InProductResponse> {
-		const user = await this.userModel.findById(userId).lean();
-		const author = await this.userModel.findById(product.author).lean();
+		const user = await this.userModel.findById(userId);
+		const author = await this.userModel.findById(product.author);
 		if (!author) {
 			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
 		}
@@ -62,7 +55,7 @@ export class ProductService {
 		return newProduct;
 	}
 
-	async getProducts(
+	async getProductList(
 		accountname: string,
 		userId: string,
 		limit?: number,
