@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from './post.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { PostRequest, PostResponse } from './dto/post-base.dto';
 import {
 	PostListResponseDto,
@@ -19,14 +19,47 @@ export class PostService {
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
 	) {}
 
+	async getPostById(postId: string): Promise<PostDocument> {
+		if (!Types.ObjectId.isValid(postId)) {
+			throw new HttpException('존재하지 않는 게시글입니다.', HttpStatus.NOT_FOUND);
+		}
+		const post = await this.postModel.findOne({ _id: postId });
+		if (!post) {
+			throw new HttpException('존재하지 않는 게시글입니다.', HttpStatus.NOT_FOUND);
+		}
+		return post;
+	}
+
+	async getUserById(userId: string): Promise<UserDocument> {
+		const user = await this.userModel.findById(userId);
+		if (!user) {
+			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
+		}
+		return user;
+	}
+
+	async getUserByAccountName(accountname: string): Promise<UserDocument> {
+		const user = await this.userModel.findOne({ accountname });
+		if (!user) {
+			throw new HttpException('해당 계정이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
+		}
+		return user;
+	}
+
+	async compareAuthorAndUser(authorId: string, userId: string) {
+		if (authorId !== userId) {
+			throw new HttpException(
+				'잘못된 요청입니다. 로그인 정보를 확인하세요.',
+				HttpStatus.UNAUTHORIZED,
+			);
+		}
+	}
+
 	async getSinglePostResponse(
 		post: PostDocument,
 		currUserId: string,
 	): Promise<PostResponse> {
-		const author = await this.userModel.findById(post.author);
-		if (!author) {
-			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-		}
+		const author = await this.getUserById(post.author);
 		const newPost: PostResponse = {
 			...post.readOnlyData,
 			author: {
@@ -65,10 +98,7 @@ export class PostService {
 		limit: number,
 		skip: number,
 	): Promise<PostResponseDto> {
-		const author = await this.userModel.findOne({ accountname });
-		if (!author) {
-			throw new HttpException('해당 계정이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
-		}
+		const author = await this.getUserByAccountName(accountname);
 		const posts = await this.postModel
 			.find({ author: author._id })
 			.limit(limit)
@@ -84,12 +114,8 @@ export class PostService {
 		limit: number,
 		skip: number,
 	): Promise<PostListResponseDto> {
-		const author = await this.userModel.findOne({ _id: userId });
-		if (!author) {
-			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-		}
+		const author = await this.getUserById(userId);
 		const followingIds = author.following;
-		console.log(followingIds);
 		const posts = await this.postModel
 			.find({ author: { $in: followingIds } })
 			.limit(limit)
@@ -101,7 +127,7 @@ export class PostService {
 	}
 
 	async getPostDetail(userId: string, postId: string): Promise<PostSingleResponseDto> {
-		const post = await this.postModel.findOne({ _id: postId });
+		const post = await this.getPostById(postId);
 		const postResponse = await this.getSinglePostResponse(post, userId);
 		return {
 			post: postResponse,
@@ -124,22 +150,15 @@ export class PostService {
 	async updatePost(
 		postId: string,
 		userId: string,
-		post: PostRequest,
+		postRequest: PostRequest,
 	): Promise<PostSingleResponseDto> {
-		const updatedPost = await this.postModel.findByIdAndUpdate(
-			postId,
-			{ ...post, updatedAt: new Date() },
+		const post = await this.getPostById(postId);
+		await this.compareAuthorAndUser(post.author, userId);
+		const updatedPost = await this.postModel.findOneAndUpdate(
+			{ _id: postId },
+			{ ...postRequest, updatedAt: new Date() },
 			{ new: true },
 		);
-		if (!updatedPost) {
-			throw new HttpException('존재하지 않는 게시글입니다.', HttpStatus.NOT_FOUND);
-		}
-		if (updatedPost.author !== userId) {
-			throw new HttpException(
-				'잘못된 요청입니다. 로그인 정보를 확인하세요.',
-				HttpStatus.UNAUTHORIZED,
-			);
-		}
 		const postResponse = await this.getSinglePostResponse(updatedPost, userId);
 		return {
 			post: postResponse,
@@ -147,26 +166,19 @@ export class PostService {
 	}
 
 	async deletePost(postId: string, userId: string) {
-		const deletedPost = await this.postModel.findByIdAndDelete(postId);
-		if (!deletedPost) {
-			throw new HttpException('게시물을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-		}
-		if (deletedPost.author !== userId) {
-			throw new HttpException('삭제 권한이 없습니다.', HttpStatus.UNAUTHORIZED);
-		}
+		const post = await this.getPostById(postId);
+		await this.compareAuthorAndUser(post.author, userId);
+		await this.postModel.deleteOne({ _id: postId });
 		return {
 			message: '게시물이 성공적으로 삭제되었습니다.',
 		};
 	}
 
 	async reportPost(postId: string): Promise<PostReportResponseDto> {
-		const reportedPost = await this.postModel.findById(postId);
-		if (!reportedPost) {
-			throw new HttpException('게시물을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-		}
+		const reportedPost = await this.getPostById(postId);
 		return {
 			report: {
-				post: postId,
+				post: String(reportedPost._id),
 			},
 		};
 	}
