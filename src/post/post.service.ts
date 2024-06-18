@@ -9,41 +9,25 @@ import {
 	PostResponseDto,
 	PostSingleResponseDto,
 } from './dto/post.dto';
-import { User, UserDocument } from '@user/user.schema';
 import { getIsFollow } from 'src/util/helper';
+import { UserService } from '@user/user.service';
 
 @Injectable()
 export class PostService {
 	constructor(
 		@InjectModel(Post.name) private postModel: Model<PostDocument>,
-		@InjectModel(User.name) private userModel: Model<UserDocument>,
+		private userService: UserService,
 	) {}
 
 	async getPostById(postId: string): Promise<PostDocument> {
 		if (!Types.ObjectId.isValid(postId)) {
 			throw new HttpException('존재하지 않는 게시글입니다.', HttpStatus.NOT_FOUND);
 		}
-		const post = await this.postModel.findOne({ _id: postId });
+		const post = await this.postModel.findById(postId);
 		if (!post) {
 			throw new HttpException('존재하지 않는 게시글입니다.', HttpStatus.NOT_FOUND);
 		}
 		return post;
-	}
-
-	async getUserById(userId: string): Promise<UserDocument> {
-		const user = await this.userModel.findById(userId);
-		if (!user) {
-			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-		}
-		return user;
-	}
-
-	async getUserByAccountName(accountname: string): Promise<UserDocument> {
-		const user = await this.userModel.findOne({ accountname });
-		if (!user) {
-			throw new HttpException('해당 계정이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
-		}
-		return user;
 	}
 
 	async compareAuthorAndUser(authorId: string, userId: string) {
@@ -59,7 +43,7 @@ export class PostService {
 		post: PostDocument,
 		currUserId: string,
 	): Promise<PostResponse> {
-		const author = await this.getUserById(post.author);
+		const author = await this.userService.getUserById(post.author);
 		const newPost: PostResponse = {
 			...post.readOnlyData,
 			author: {
@@ -98,7 +82,7 @@ export class PostService {
 		limit: number,
 		skip: number,
 	): Promise<PostResponseDto> {
-		const author = await this.getUserByAccountName(accountname);
+		const author = await this.userService.getUserByAccountName(accountname);
 		const posts = await this.postModel
 			.find({ author: author._id })
 			.limit(limit)
@@ -114,7 +98,7 @@ export class PostService {
 		limit: number,
 		skip: number,
 	): Promise<PostListResponseDto> {
-		const author = await this.getUserById(userId);
+		const author = await this.userService.getUserById(userId);
 		const followingIds = author.following;
 		const posts = await this.postModel
 			.find({ author: { $in: followingIds } })

@@ -79,16 +79,15 @@ UserSchema.virtual('registerData').get(function (this: User) {
 UserSchema.virtual('readOnlyData').get(function (this: User) {
 	return {
 		_id: this.id,
-		email: this.email,
 		username: this.username,
 		accountname: this.accountname,
 		intro: this.intro,
 		image: this.image,
+		isfollow: false,
 		following: this.following,
 		follower: this.follower,
 		followingCount: this.following.length,
 		followerCount: this.follower.length,
-		isfollow: false,
 	};
 });
 

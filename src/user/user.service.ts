@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './user.schema';
+import { User, UserDocument } from './user.schema';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import bcrypt from 'bcrypt';
@@ -8,6 +8,22 @@ import { RegisterRequestDto } from './dto/user.dto';
 @Injectable()
 export class UserService {
 	constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+
+	async getUserById(userId: string): Promise<UserDocument> {
+		const user = await this.userModel.findById(userId);
+		if (!user) {
+			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
+		}
+		return user;
+	}
+
+	async getUserByAccountName(accountname: string): Promise<UserDocument> {
+		const user = await this.userModel.findOne({ accountname });
+		if (!user) {
+			throw new HttpException('해당 계정이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
+		}
+		return user;
+	}
 
 	async register(user: RegisterRequestDto) {
 		const { email, accountname, username, password } = user.user;
