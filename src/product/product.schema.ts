@@ -1,10 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-
-export type ProductDocument = HydratedDocument<Product>;
+import { Document, HydratedDocument } from 'mongoose';
 
 @Schema()
-export class Product {
+export class Product extends Document {
 	@Prop({ type: String, required: true, trim: true })
 	itemName: string;
 
@@ -19,6 +17,24 @@ export class Product {
 
 	@Prop({ type: String, required: true })
 	author: string;
+
+	readonly readOnlyData: {
+		_id: string;
+		itemName: string;
+		price: number;
+		link: string;
+		itemImage: string;
+	};
 }
 
+export type ProductDocument = HydratedDocument<Product>;
 export const ProductSchema = SchemaFactory.createForClass(Product);
+ProductSchema.virtual('readOnlyData').get(function (this: Product) {
+	return {
+		_id: this._id,
+		itemName: this.itemName,
+		price: this.price,
+		link: this.link,
+		itemImage: this.itemImage,
+	};
+});
