@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '@user/user.schema';
 import { Product, ProductDocument } from './product.schema';
-import { CreateProductDTO, ProductResponse, ProductListDTO } from '@product/product.dto';
+import {
+	CreateProductDTO,
+	ProductResponse,
+	ProductListDTO,
+	InProductResponse,
+} from '@product/product.dto';
 
 @Injectable()
 export class ProductService {
@@ -37,21 +42,41 @@ export class ProductService {
 		return newProduct;
 	}
 
-	async getProducts(accountname: string): Promise<ProductListDTO> {
-		const user = await this.userModel.findOne({ accountname }, { password: 0 }).lean();
-		const products = await this.productModel.find({ author: user._id }).lean();
-		const author = {
-			...user,
-			followerCount: user.follower.length,
-			followingCount: user.following.length,
-			isfollow: false, //FIXME 추후 수정 필요
+	async getSingleProduct(
+		product: ProductDocument,
+		userId: string,
+	): Promise<InProductResponse> {
+		const user = await this.userModel.findById(userId).lean();
+		const author = await this.userModel.findById(product.author).lean();
+		if (!author) {
+			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
+		}
+		const isfollow = author.follower.includes(user.accountname);
+		const newProduct: InProductResponse = {
+			...product.readOnlyData,
+			author: {
+				...author.readOnlyData,
+				isfollow,
+			},
 		};
-		const productsRes = products.map(product => {
-			return {
-				...product,
-				author: author,
-			};
-		});
+		return newProduct;
+	}
+
+	async getProducts(
+		accountname: string,
+		userId: string,
+		limit?: number,
+		skip?: number,
+	): Promise<ProductListDTO> {
+		const user = await this.userModel.findOne({ accountname });
+		const products = await this.productModel
+			.find({ author: user._id })
+			.limit(limit)
+			.skip(skip);
+
+		const productsRes = await Promise.all(
+			products.map(product => this.getSingleProduct(product, userId)),
+		);
 		return {
 			data: products.length,
 			product: productsRes,
