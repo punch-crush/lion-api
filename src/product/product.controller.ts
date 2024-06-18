@@ -7,6 +7,7 @@ import {
 	Req,
 	UnauthorizedException,
 	UseGuards,
+	Header,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDTO } from './product.dto';
@@ -17,8 +18,8 @@ export class ProductController {
 	constructor(private productService: ProductService) {}
 
 	@Post('/')
+	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
-	//BUG: @Req에 express Request type을 작성해주면 _id가 없다고 에러남
 	async createProduct(@Body() productDTO: CreateProductDTO, @Req() req) {
 		if (!req.user) {
 			throw new UnauthorizedException();
@@ -29,6 +30,7 @@ export class ProductController {
 	}
 
 	@Get('/:accountname')
+	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	async getProducts(@Param('accountname') accountname: string) {
 		return this.productService.getProducts(accountname);
