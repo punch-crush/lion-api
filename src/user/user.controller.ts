@@ -1,4 +1,11 @@
-import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Header,
+	HttpException,
+	HttpStatus,
+	Post,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import {
 	AccountNameValidRequestDto,
@@ -11,11 +18,13 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Post('/')
+	@Header('content-type', 'application/json')
 	async register(@Body() body: RegisterRequestDto) {
 		return await this.userService.register(body);
 	}
 
 	@Post('/emailvalid')
+	@Header('content-type', 'application/json')
 	async validateEmail(@Body() user: EmailValidRequestDto) {
 		try {
 			const { email } = user.user;
@@ -30,6 +39,7 @@ export class UserController {
 	}
 
 	@Post('/accountnamevalid')
+	@Header('content-type', 'application/json')
 	async validateAccountName(@Body() user: AccountNameValidRequestDto) {
 		try {
 			const { accountname } = user.user;

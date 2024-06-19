@@ -3,6 +3,7 @@ import {
 	Controller,
 	Delete,
 	Get,
+	Header,
 	Param,
 	Post,
 	Put,
@@ -26,6 +27,7 @@ export class PostController {
 	constructor(private readonly postService: PostService) {}
 
 	@Get('/')
+	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	async getAllPost(
 		@Query('limit') limit: string,
@@ -41,6 +43,7 @@ export class PostController {
 	}
 
 	@Get('/feed')
+	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	async getFeedPost(
 		@Query('limit') limit: string,
@@ -56,6 +59,7 @@ export class PostController {
 	}
 
 	@Get(':accountname/userpost')
+	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	async getUserPost(
 		@Param('accountname') accountname: string,
@@ -72,6 +76,7 @@ export class PostController {
 	}
 
 	@Get(':post_id')
+	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	async getPostDetail(
 		@Param('post_id') postId: string,
@@ -84,6 +89,7 @@ export class PostController {
 	}
 
 	@Post('/')
+	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	async createPost(
 		@Body() post: PostRequestDto,
@@ -96,6 +102,7 @@ export class PostController {
 	}
 
 	@Put(':post_id')
+	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	async updatePost(
 		@Param('post_id') postId: string,
@@ -109,6 +116,7 @@ export class PostController {
 	}
 
 	@Delete(':post_id')
+	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	async deletePost(
 		@Param('post_id') postId: string,
@@ -121,6 +129,7 @@ export class PostController {
 	}
 
 	@Post(':post_id/report')
+	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	async reportPost(
 		@Param('post_id') postId: string,
