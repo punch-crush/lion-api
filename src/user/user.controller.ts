@@ -4,9 +4,11 @@ import {
 	AccountNameValidRequestDto,
 	EmailValidRequestDto,
 	ProfileUpdateRequestDto,
+	ProfileResponseDto,
 	RegisterRequestDto,
 } from './dto/user.dto';
 import { HandleErrors } from '@util/error-decorator';
+import { JwtAuthGuard } from '@user/auth/guards/jwt-auth.guard';
 
 @Controller('')
 export class UserController {
@@ -35,17 +37,16 @@ export class UserController {
 		return await this.userService.validateAccountName(accountname);
 	}
 
+	//TODO ProfileResponseDto 범용성 있게 이름 변경
 	@Put()
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
 	async updateProfile(
-		@Headers('Authorization') authHeader: string,
+		@Req() req,
 		@Body() body: ProfileUpdateRequestDto,
-	) {
+	): Promise<ProfileResponseDto> {
 		try {
-			const token = authHeader.split(' ')[1];
-			token;
-			// const decode = jwt토큰 디코딩으로 email 받아왔다고 가정
-			const email = 'char@char.com';
-			return await this.userService.updateProfile(email, body);
+			return await this.userService.updateProfile(req.user._id, body);
 		} catch (error) {
 			if (error instanceof HttpException) {
 				throw error;
@@ -56,13 +57,11 @@ export class UserController {
 	}
 
 	@Get('myinfo')
-	async getMyInfo(@Headers('Authorization') authHeader: string) {
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	async getMyInfo(@Req() req): Promise<ProfileResponseDto> {
 		try {
-			const token = authHeader.split(' ')[1];
-			token;
-			// const decode = jwt토큰 디코딩으로 email 받아왔다고 가정
-			const email = 'char@char.com';
-			return await this.userService.getMyInfo(email);
+			return await this.userService.getMyInfo(req.user._id);
 		} catch (error) {
 			if (error instanceof HttpException) {
 				throw error;

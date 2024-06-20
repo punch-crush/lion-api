@@ -105,22 +105,20 @@ export class UserService {
 		return userData;
 	}
 
-	async getMyInfo(email: string) {
-		const user = await this.userModel.findOne({ email });
+	async getMyInfo(_id: string): Promise<ProfileResponseDto> {
+		const user = await this.userModel.findOne({ _id });
 		if (!user) {
 			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
 		}
-		return [
-			{
-				user: user.readOnlyDataWithFollow,
-			},
-		];
+		return {
+			user: user.readOnlyData,
+		};
 	}
 
 	async updateProfile(
-		email: string,
+		_id: string,
 		newUserInfo: ProfileUpdateRequestDto,
-	): Promise<ProfileUpdateResponseDto> {
+	): Promise<ProfileResponseDto> {
 		const { username, accountname, intro, image } = newUserInfo.user;
 		if (!accountname || !username) {
 			throw new HttpException('필수 입력사항을 입력해주세요.', HttpStatus.BAD_REQUEST);
@@ -130,19 +128,19 @@ export class UserService {
 			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
 		}
 
-		const user = await this.userModel.findOne({ email });
+		const user = await this.userModel.findOne({ _id });
 		if (!user) {
 			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
 		}
 		user.username = username;
 		user.accountname = accountname;
 		user.intro = intro;
-		user.image = image || 'default image';
+		user.image = image;
 
 		await user.save();
 
 		return {
-			user: user.profileUpdateResponse,
+			user: user.readOnlyData,
 		};
 	}
 }
