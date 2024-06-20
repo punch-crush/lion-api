@@ -9,9 +9,10 @@ import {
 	UseGuards,
 	Header,
 	Query,
+	Put,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { CreateProductDTO } from './product.dto';
+import { CreateProductDTO, UpdateProductDTO } from './product.dto';
 import { JwtAuthGuard } from '@auth/jwt-auth.guard';
 
 @Controller()
@@ -48,5 +49,20 @@ export class ProductController {
 	@UseGuards(JwtAuthGuard)
 	async getProductDetail(@Param('productId') productId: string) {
 		return this.productService.getProductDetail(productId);
+	}
+
+	@Put('/:product_id')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	async updateProduct(
+		@Req() req,
+		@Param('product_id') productId: string,
+		@Body() productDTO: UpdateProductDTO,
+	) {
+		if (!req.user) {
+			throw new UnauthorizedException();
+		}
+		const { _id } = req.user;
+		return this.productService.updateProduct(productId, productDTO, _id);
 	}
 }
