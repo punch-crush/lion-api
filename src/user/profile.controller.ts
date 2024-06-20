@@ -1,14 +1,19 @@
 import {
+	BadRequestException,
 	Controller,
 	Delete,
 	Get,
-	Headers,
+	Header,
 	HttpException,
 	HttpStatus,
 	Param,
 	Post,
+	Req,
+	UseGuards,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
+import { JwtAuthGuard } from '@auth/jwt-auth.guard';
+import { FollowResponseDto, InfoResponseDto } from './dto/profile.dto';
 
 @Controller()
 export class ProfileController {
@@ -16,16 +21,10 @@ export class ProfileController {
 
 	//개인 프로필 조회
 	@Get(':accountname')
-	async getProfile(
-		@Headers('Authorization') authHeader: string,
-		@Param('accountname') accountname: string,
-	) {
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	async getProfile(@Param('accountname') accountname: string): Promise<InfoResponseDto> {
 		try {
-			const token = authHeader.split(' ')[1];
-			if (!token) {
-				throw new HttpException('권한이 없습니다.', HttpStatus.UNAUTHORIZED);
-			}
-
 			return await this.profileService.getProfile(accountname);
 		} catch (error) {
 			if (error instanceof HttpException) {
@@ -38,25 +37,18 @@ export class ProfileController {
 
 	//팔로우
 	@Post(':accountname/follow')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
 	async follow(
-		@Headers('Authorization') authHeader: string,
+		@Req() req,
 		@Param('accountname') accountname: string,
-	) {
+	): Promise<FollowResponseDto> {
 		try {
-			const token = authHeader.split(' ')[1];
-			if (!token) {
-				throw new HttpException('권한이 없습니다.', HttpStatus.UNAUTHORIZED);
-			}
-			const myAccountName = 'newChar'; //토큰 이용해 알아온다.
-
-			if (accountname == myAccountName) {
-				throw new HttpException(
-					'자기 자신을 팔로우 할 수 없습니다.',
-					HttpStatus.INTERNAL_SERVER_ERROR,
-				);
+			if (req.user._id == accountname) {
+				throw new BadRequestException('자기 자신을 팔로우 할 수 없습니다.');
 			}
 
-			return await this.profileService.follow(myAccountName, accountname);
+			return await this.profileService.follow(req.user._id, accountname);
 		} catch (error) {
 			if (error instanceof HttpException) {
 				throw error;
@@ -68,25 +60,18 @@ export class ProfileController {
 
 	//언팔로우
 	@Delete(':accountname/unfollow')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
 	async unfollow(
-		@Headers('Authorization') authHeader: string,
+		@Req() req,
 		@Param('accountname') accountname: string,
-	) {
+	): Promise<FollowResponseDto> {
 		try {
-			const token = authHeader.split(' ')[1];
-			if (!token) {
-				throw new HttpException('권한이 없습니다.', HttpStatus.UNAUTHORIZED);
-			}
-			const myAccountName = 'newChar'; //토큰 이용해 알아온다.
-
-			if (accountname == myAccountName) {
-				throw new HttpException(
-					'자기 자신을 언팔로우 할 수 없습니다.',
-					HttpStatus.INTERNAL_SERVER_ERROR,
-				);
+			if (req.user._id == accountname) {
+				throw new BadRequestException('자기 자신을 언팔로우 할 수 없습니다.');
 			}
 
-			return await this.profileService.unfollow(myAccountName, accountname);
+			return await this.profileService.unfollow(req.user._id, accountname);
 		} catch (error) {
 			if (error instanceof HttpException) {
 				throw error;
@@ -98,9 +83,13 @@ export class ProfileController {
 
 	//팔로잉 리스트
 	@Get(':accountname/following?limit=Number&skip=Number')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
 	async getFollowingList() {}
 
 	//팔로워 리스트
 	@Get(':accountname/follower/?limit=Number&skip=Number')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
 	async getFollowerList() {}
 }

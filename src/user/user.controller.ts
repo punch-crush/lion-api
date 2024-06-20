@@ -37,7 +37,6 @@ export class UserController {
 		return await this.userService.validateAccountName(accountname);
 	}
 
-	//TODO ProfileResponseDto 범용성 있게 이름 변경
 	@Put()
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
