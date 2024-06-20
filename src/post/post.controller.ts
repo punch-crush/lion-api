@@ -4,12 +4,13 @@ import {
 	Delete,
 	Get,
 	Header,
+	HttpException,
+	HttpStatus,
 	Param,
 	Post,
 	Put,
 	Query,
 	Req,
-	UnauthorizedException,
 	UseGuards,
 } from '@nestjs/common';
 import { PostService } from './post.service';
@@ -34,12 +35,17 @@ export class PostController {
 		@Query('skip') skip: string,
 		@Req() req,
 	): Promise<PostListResponseDto> {
-		if (!req.user) {
-			throw new UnauthorizedException();
+		try {
+			const limitValue = limit ? parseInt(limit) : 10;
+			const skipValue = skip ? parseInt(skip) : 0;
+			return this.postService.getAllPost(req.user._id, limitValue, skipValue);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-		const limitValue = limit ? parseInt(limit) : 10;
-		const skipValue = skip ? parseInt(skip) : 0;
-		return this.postService.getAllPost(req.user._id, limitValue, skipValue);
 	}
 
 	@Get('/feed')
@@ -50,12 +56,17 @@ export class PostController {
 		@Query('skip') skip: string,
 		@Req() req,
 	): Promise<PostListResponseDto> {
-		if (!req.user) {
-			throw new UnauthorizedException();
+		try {
+			const limitValue = limit ? parseInt(limit) : 10;
+			const skipValue = skip ? parseInt(skip) : 0;
+			return this.postService.getFeedPost(req.user._id, limitValue, skipValue);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-		const limitValue = limit ? parseInt(limit) : 10;
-		const skipValue = skip ? parseInt(skip) : 0;
-		return this.postService.getFeedPost(req.user._id, limitValue, skipValue);
 	}
 
 	@Get(':accountname/userpost')
@@ -67,12 +78,22 @@ export class PostController {
 		@Query('skip') skip: string,
 		@Req() req,
 	): Promise<PostResponseDto> {
-		if (!req.user) {
-			throw new UnauthorizedException();
+		try {
+			const limitValue = limit ? parseInt(limit) : 10;
+			const skipValue = skip ? parseInt(skip) : 0;
+			return this.postService.getUserPost(
+				req.user._id,
+				accountname,
+				limitValue,
+				skipValue,
+			);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-		const limitValue = limit ? parseInt(limit) : 10;
-		const skipValue = skip ? parseInt(skip) : 0;
-		return this.postService.getUserPost(req.user._id, accountname, limitValue, skipValue);
 	}
 
 	@Get(':post_id')
@@ -82,10 +103,15 @@ export class PostController {
 		@Param('post_id') postId: string,
 		@Req() req,
 	): Promise<PostSingleResponseDto> {
-		if (!req.user) {
-			throw new UnauthorizedException();
+		try {
+			return this.postService.getPostDetail(req.user._id, postId);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-		return this.postService.getPostDetail(req.user._id, postId);
 	}
 
 	@Post('/')
@@ -95,10 +121,15 @@ export class PostController {
 		@Body() post: PostRequestDto,
 		@Req() req,
 	): Promise<PostSingleResponseDto> {
-		if (!req.user) {
-			throw new UnauthorizedException();
+		try {
+			return this.postService.createPost(req.user._id, post.post);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-		return this.postService.createPost(req.user._id, post.post);
 	}
 
 	@Put(':post_id')
@@ -109,10 +140,15 @@ export class PostController {
 		@Body() post: PostRequestDto,
 		@Req() req,
 	): Promise<PostSingleResponseDto> {
-		if (!req.user) {
-			throw new UnauthorizedException();
+		try {
+			return this.postService.updatePost(postId, req.user._id, post.post);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-		return this.postService.updatePost(postId, req.user._id, post.post);
 	}
 
 	@Delete(':post_id')
@@ -122,22 +158,29 @@ export class PostController {
 		@Param('post_id') postId: string,
 		@Req() req,
 	): Promise<{ message: string }> {
-		if (!req.user) {
-			throw new UnauthorizedException();
+		try {
+			return this.postService.deletePost(postId, req.user._id);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-		return this.postService.deletePost(postId, req.user._id);
 	}
 
 	@Post(':post_id/report')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
-	async reportPost(
-		@Param('post_id') postId: string,
-		@Req() req,
-	): Promise<PostReportResponseDto> {
-		if (!req.user) {
-			throw new UnauthorizedException();
+	async reportPost(@Param('post_id') postId: string): Promise<PostReportResponseDto> {
+		try {
+			return this.postService.reportPost(postId);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-		return this.postService.reportPost(postId);
 	}
 }
