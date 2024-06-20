@@ -112,12 +112,34 @@ export class ProductService {
 		const product = await this.getProductId(productId);
 		const author = await this.userModel.findById(product.author);
 		if (author._id.toString() !== userId) {
-			throw new HttpException('수정 권한이 없습니다.', HttpStatus.FORBIDDEN);
+			throw new HttpException(
+				'잘못된 요청입니다. 로그인 정보를 확인하세요',
+				HttpStatus.FORBIDDEN,
+			);
 		}
 		await this.productModel.findByIdAndUpdate(productId, productDTO.product, {
 			new: true,
 		});
 		const updatedProductRes = await this.getProductDetail(productId);
 		return updatedProductRes;
+	}
+
+	async deleteProduct(productId: string, userId: string) {
+		try {
+			const product = await this.getProductId(productId);
+			const author = await this.userModel.findById(product.author);
+			if (author._id.toString() !== userId) {
+				throw new HttpException(
+					'잘못된 요청입니다. 로그인 정보를 확인하세요',
+					HttpStatus.FORBIDDEN,
+				);
+			}
+			await this.productModel.findByIdAndDelete(productId);
+			return {
+				message: '상품이 삭제되었습니다',
+			};
+		} catch (error) {
+			throw new HttpException('등록된 상품이 없습니다', HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }
