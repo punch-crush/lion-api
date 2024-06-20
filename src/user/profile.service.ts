@@ -21,7 +21,7 @@ export class ProfileService {
 
 	async follow(_id: string, accountname: string): Promise<FollowResponseDto> {
 		const user = await this.userModel.findOne({ accountname });
-		const myProfile = await this.userModel.findOne({ _id: _id });
+		const myProfile = await this.userModel.findById({ _id });
 		if (!user || !myProfile) {
 			throw new HttpException('해당 계정이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
 		}
@@ -44,7 +44,7 @@ export class ProfileService {
 
 	async unfollow(_id: string, accountname: string): Promise<FollowResponseDto> {
 		const user = await this.userModel.findOne({ accountname });
-		const myProfile = await this.userModel.findOne({ _id: _id });
+		const myProfile = await this.userModel.findById({ _id });
 		if (!user || !myProfile) {
 			throw new HttpException('해당 계정이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
 		}
@@ -57,5 +57,43 @@ export class ProfileService {
 		return {
 			profile: user.readOnlyData,
 		};
+	}
+
+	async getFollowingList(
+		_id: string,
+		accountname: string,
+		limit: number,
+		skip: number,
+	): Promise<FollowResponseDto[]> {
+		const user = await this.userModel.findOne({ accountname });
+		const slicedFollowing = user.following.slice(skip, skip + limit);
+
+		const followingList = [];
+		for (const userId of slicedFollowing) {
+			const followingDoc = await this.userModel.findById(userId);
+			const following = followingDoc.readOnlyData;
+			following.isfollow = getIsFollow(followingDoc, _id);
+			followingList.push(following);
+		}
+		return followingList;
+	}
+
+	async getFollowerList(
+		_id: string,
+		accountname: string,
+		limit: number,
+		skip: number,
+	): Promise<FollowResponseDto[]> {
+		const user = await this.userModel.findOne({ accountname });
+		const slicedFollower = user.follower.slice(skip, skip + limit);
+
+		const followerList = [];
+		for (const userId of slicedFollower) {
+			const followerDoc = await this.userModel.findById(userId);
+			const follower = followerDoc.readOnlyData;
+			follower.isfollow = getIsFollow(followerDoc, _id);
+			followerList.push(follower);
+		}
+		return followerList;
 	}
 }

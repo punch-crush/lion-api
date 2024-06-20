@@ -8,6 +8,7 @@ import {
 	HttpStatus,
 	Param,
 	Post,
+	Query,
 	Req,
 	UseGuards,
 } from '@nestjs/common';
@@ -19,7 +20,6 @@ import { FollowResponseDto, InfoResponseDto } from './dto/profile.dto';
 export class ProfileController {
 	constructor(private readonly profileService: ProfileService) {}
 
-	//개인 프로필 조회
 	@Get(':accountname')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
@@ -35,7 +35,6 @@ export class ProfileController {
 		}
 	}
 
-	//팔로우
 	@Post(':accountname/follow')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
@@ -58,7 +57,6 @@ export class ProfileController {
 		}
 	}
 
-	//언팔로우
 	@Delete(':accountname/unfollow')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
@@ -81,15 +79,59 @@ export class ProfileController {
 		}
 	}
 
-	//팔로잉 리스트
-	@Get(':accountname/following?limit=Number&skip=Number')
+	@Get(':accountname/following')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
-	async getFollowingList() {}
+	async getFollowingList(
+		@Req() req,
+		@Param('accountname') accountname: string,
+		@Query('limit') limit: string,
+		@Query('skip') skip: string,
+	): Promise<FollowResponseDto[]> {
+		try {
+			const limitValue = limit ? parseInt(limit) : 10;
+			const skipValue = skip ? parseInt(skip) : 0;
 
-	//팔로워 리스트
-	@Get(':accountname/follower/?limit=Number&skip=Number')
+			return await this.profileService.getFollowingList(
+				req.user._id,
+				accountname,
+				limitValue,
+				skipValue,
+			);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+	}
+
+	@Get(':accountname/follower')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
-	async getFollowerList() {}
+	async getFollowerList(
+		@Req() req,
+		@Param('accountname') accountname: string,
+		@Query('limit') limit: string,
+		@Query('skip') skip: string,
+	): Promise<FollowResponseDto[]> {
+		try {
+			const limitValue = limit ? parseInt(limit) : 10;
+			const skipValue = skip ? parseInt(skip) : 0;
+
+			return await this.profileService.getFollowerList(
+				req.user._id,
+				accountname,
+				limitValue,
+				skipValue,
+			);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+	}
 }
