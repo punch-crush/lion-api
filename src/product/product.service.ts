@@ -5,6 +5,7 @@ import { User, UserDocument } from '@user/user.schema';
 import { Product, ProductDocument } from './product.schema';
 import {
 	CreateProductDTO,
+	UpdateProductDTO,
 	ProductResponse,
 	ProductListDTO,
 	InProductResponse,
@@ -101,5 +102,22 @@ export class ProductService {
 			},
 		};
 		return productRes;
+	}
+
+	async updateProduct(
+		productId: string,
+		productDTO: UpdateProductDTO,
+		userId: string,
+	): Promise<ProductResponse> {
+		const product = await this.getProductId(productId);
+		const author = await this.userModel.findById(product.author);
+		if (author._id.toString() !== userId) {
+			throw new HttpException('수정 권한이 없습니다.', HttpStatus.FORBIDDEN);
+		}
+		await this.productModel.findByIdAndUpdate(productId, productDTO.product, {
+			new: true,
+		});
+		const updatedProductRes = await this.getProductDetail(productId);
+		return updatedProductRes;
 	}
 }
