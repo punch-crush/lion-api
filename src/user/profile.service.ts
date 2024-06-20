@@ -30,8 +30,8 @@ export class ProfileService {
 			user.follower.push(_id);
 			await user.save();
 		}
-		if (!myProfile.following.includes(accountname)) {
-			myProfile.following.push(accountname);
+		if (!myProfile.following.includes(user._id.toString())) {
+			myProfile.following.push(user._id.toString());
 			await myProfile.save();
 		}
 
@@ -51,7 +51,7 @@ export class ProfileService {
 
 		user.follower = user.follower.filter(id => id !== _id);
 		await user.save();
-		myProfile.following = myProfile.following.filter(id => id !== user._id);
+		myProfile.following = myProfile.following.filter(id => id !== user._id.toString());
 		await myProfile.save();
 
 		return {
