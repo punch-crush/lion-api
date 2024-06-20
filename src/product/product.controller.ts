@@ -10,6 +10,7 @@ import {
 	Header,
 	Query,
 	Put,
+	Delete,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDTO, UpdateProductDTO } from './product.dto';
@@ -64,5 +65,16 @@ export class ProductController {
 		}
 		const { _id } = req.user;
 		return this.productService.updateProduct(productId, productDTO, _id);
+	}
+
+	@Delete('/:product_id')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	async deleteProduct(@Req() req, @Param('product_id') productId: string) {
+		if (!req.user) {
+			throw new UnauthorizedException();
+		}
+		const { _id } = req.user;
+		return this.productService.deleteProduct(productId, _id);
 	}
 }
