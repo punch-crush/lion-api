@@ -6,7 +6,7 @@ import {
 	RegisterRequest,
 	RegisterResponse,
 	ProfileUpdateRequest,
-	ProfileUpdateResponse,
+	ProfileResponse,
 } from '@user/dto/user-base.dto';
 import { Type } from 'class-transformer';
 import { IsString, ValidateNested } from 'class-validator';
@@ -56,8 +56,8 @@ export class ProfileUpdateRequestDto {
 	user: ProfileUpdateRequest;
 }
 
-export class ProfileUpdateResponseDto {
+export class ProfileResponseDto {
 	@ValidateNested()
-	@Type(() => ProfileUpdateResponse)
-	user: ProfileUpdateResponse;
+	@Type(() => ProfileResponse)
+	user: ProfileResponse;
 }

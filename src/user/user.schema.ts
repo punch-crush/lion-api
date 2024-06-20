@@ -87,6 +87,22 @@ UserSchema.virtual('readOnlyData').get(function (this: User) {
 		following: this.following,
 		follower: this.follower,
 		followingCount: this.following.length,
+<<<<<<< HEAD
+=======
+		followerCount: this.follower.length,
+	};
+});
+
+UserSchema.virtual('profileResponse').get(function (this: User) {
+	return {
+		_id: this.id,
+		username: this.username,
+		accountname: this.accountname,
+		intro: this.intro,
+		image: this.image,
+		following: this.following,
+		follower: this.follower,
+>>>>>>> 6a8a9a5 (feat: ProfileUpdateResponse -> ProfileResponse로 범용성 있게 변경)
 		followerCount: this.follower.length,
 	};
 });

@@ -126,7 +126,7 @@ export class ProfileUpdateRequest extends UserCommon {
 	image: string;
 }
 
-export class ProfileUpdateResponse extends ProfileUpdateRequest {
+export class ProfileResponse extends ProfileUpdateRequest {
 	@IsArray()
 	@IsString({ each: true })
 	follower: string[];
