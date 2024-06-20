@@ -29,7 +29,7 @@ export class ProductService {
 
 		const newProduct: ProductResponse = {
 			product: {
-				...productDocument,
+				...productDocument.readOnlyData,
 				author: author.readOnlyData,
 			},
 		};
