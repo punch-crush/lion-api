@@ -49,9 +49,9 @@ export class UserService {
 		}
 		return { message: '사용 가능한 계정ID 입니다.' };
 	}
-  
+
 	async findUser(email: string, password: string) {
-		const user = await this.userModel.findOne({ email });
+		const user: User = await this.userModel.findOne({ email });
 		if (!user) {
 			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
 		}
@@ -59,6 +59,9 @@ export class UserService {
 		if (!isPasswordValid) {
 			throw new HttpException('비밀번호가 일치하지 않습니다.', HttpStatus.UNAUTHORIZED);
 		}
-		return { _id: user._id, email: user.email };
+
+		const { intro, ...userData } = user.readOnlyData;
+		void intro;
+		return userData;
 	}
 }
