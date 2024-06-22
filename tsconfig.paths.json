@@ -10,7 +10,7 @@
 			"@middleware/*": ["src/middleware/*"],
 			"@utils/*": ["src/utils/*"],
 			"@config/*": ["src/config/*"],
-			"@auth/*": ["src/auth/*"]
+			"@auth/*": ["src/user/auth/*"]
 		}
 	}
 }
