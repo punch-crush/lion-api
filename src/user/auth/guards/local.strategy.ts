@@ -1,21 +1,34 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
 	constructor(private authService: AuthService) {
 		super({
-			usernameField: 'email',
-			passwordField: 'password',
+			usernameField: 'user[email]',
+			passwordField: 'user[password]',
+			passReqToCallback: true,
 		});
 	}
 
-	async validate(email: string, password: string): Promise<any> {
+	async validate(@Req() req: any, email: string, password: string): Promise<any> {
+		if (!email) {
+			if (!password)
+				throw new HttpException(
+					'이메일 또는 비밀번호를 입력해주세요.',
+					HttpStatus.BAD_REQUEST,
+				);
+			throw new HttpException('이메일을 입력해주세요.', HttpStatus.BAD_REQUEST);
+		} else if (!password)
+			throw new HttpException('비밀번호를 입력해주세요.', HttpStatus.BAD_REQUEST);
 		const user = await this.authService.validateUser(email, password);
 		if (!user) {
-			throw new UnauthorizedException();
+			throw new HttpException(
+				'이메일 또는 비밀번호가 일치하지 않습니다.',
+				HttpStatus.UNPROCESSABLE_ENTITY,
+			);
 		}
 		return user;
 	}
