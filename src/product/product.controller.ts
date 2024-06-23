@@ -5,15 +5,21 @@ import {
 	Post,
 	Body,
 	Req,
-	UnauthorizedException,
 	UseGuards,
 	Header,
 	Query,
 	Put,
 	Delete,
+	HttpException,
+	HttpStatus,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { CreateProductDTO, UpdateProductDTO } from './product.dto';
+import {
+	CreateProductDTO,
+	UpdateProductDTO,
+	ProductResponse,
+	ProductListDTO,
+} from './product.dto';
 import { JwtAuthGuard } from '@auth/jwt-auth.guard';
 
 @Controller()
@@ -23,13 +29,19 @@ export class ProductController {
 	@Post('/')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
-	async createProduct(@Body() productDTO: CreateProductDTO, @Req() req) {
-		if (!req.user) {
-			throw new UnauthorizedException();
+	async createProduct(
+		@Body() productDTO: CreateProductDTO,
+		@Req() req,
+	): Promise<ProductResponse> {
+		try {
+			return this.productService.createProduct(productDTO, req.user._id);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-
-		const { _id } = req.user;
-		return this.productService.createProduct(productDTO, _id);
 	}
 
 	@Get('/:accountname')
@@ -39,17 +51,36 @@ export class ProductController {
 		@Query('limit') limit: string,
 		@Query('skip') skip: string,
 		@Param('accountname') accountname: string,
-	) {
+	): Promise<ProductListDTO> {
 		const limitNumber = limit ? parseInt(limit) : 10;
 		const skipNumber = skip ? parseInt(skip) : 0;
-		return this.productService.getProductList(accountname, limitNumber, skipNumber);
+		try {
+			return this.productService.getProductList(accountname, limitNumber, skipNumber);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
 	}
 
 	@Get('/detail/:productId')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
-	async getProductDetail(@Param('productId') productId: string) {
-		return this.productService.getProductDetail(productId);
+	async getProductDetail(
+		@Param('productId') productId: string,
+		@Req() req,
+	): Promise<ProductResponse> {
+		try {
+			return this.productService.getProductDetail(productId, req.user._id);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
 	}
 
 	@Put('/:product_id')
@@ -59,22 +90,30 @@ export class ProductController {
 		@Req() req,
 		@Param('product_id') productId: string,
 		@Body() productDTO: UpdateProductDTO,
-	) {
-		if (!req.user) {
-			throw new UnauthorizedException();
+	): Promise<ProductResponse> {
+		try {
+			return this.productService.updateProduct(productId, productDTO, req.user._id);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-		const { _id } = req.user;
-		return this.productService.updateProduct(productId, productDTO, _id);
 	}
 
 	@Delete('/:product_id')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	async deleteProduct(@Req() req, @Param('product_id') productId: string) {
-		if (!req.user) {
-			throw new UnauthorizedException();
+		try {
+			return this.productService.deleteProduct(productId, req.user._id);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-		const { _id } = req.user;
-		return this.productService.deleteProduct(productId, _id);
 	}
 }
