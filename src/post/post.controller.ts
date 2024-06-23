@@ -21,11 +21,16 @@ import {
 	PostResponseDto,
 	PostSingleResponseDto,
 } from './dto/post.dto';
-import { JwtAuthGuard } from '@auth/jwt-auth.guard';
+import { JwtAuthGuard } from '@user/auth/guards/jwt-auth.guard';
+import { CommentService } from './comment/comment.service';
+import { CommentRequestDto } from './comment/dto/comment.dto';
 
 @Controller()
 export class PostController {
-	constructor(private readonly postService: PostService) {}
+	constructor(
+		private readonly postService: PostService,
+		private readonly commentService: CommentService,
+	) {}
 
 	@Get('/')
 	@Header('content-type', 'application/json')
@@ -175,6 +180,59 @@ export class PostController {
 	async reportPost(@Param('post_id') postId: string): Promise<PostReportResponseDto> {
 		try {
 			return this.postService.reportPost(postId);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+	}
+
+	@Post(':post_id/comments')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	async createComment(
+		@Param('post_id') postId: string,
+		@Body() comment: CommentRequestDto,
+		@Req() req,
+	) {
+		try {
+			this.postService.getPostById(postId);
+			return this.commentService.createComment(postId, comment.comment, req.user._id);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+	}
+
+	@Get(':post_id/comments')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	async getCommentList(@Param('post_id') postId: string, @Req() req) {
+		try {
+			this.postService.getPostById(postId);
+			return this.commentService.getCommentList(postId, req.user._id);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+	}
+
+	@Delete(':post_id/comments/:comment_id')
+	async deleteComment(
+		@Param('post_id') postId: string,
+		@Param('comment_id') commentId: string,
+	) {
+		try {
+			this.postService.getPostById(postId);
+			return this.commentService.deleteComment(postId, commentId, req.user._id);
 		} catch (error) {
 			if (error instanceof HttpException) {
 				throw error;
