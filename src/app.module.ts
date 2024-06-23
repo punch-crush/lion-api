@@ -6,7 +6,7 @@ import { ImageModule } from '@image/image.module';
 import { APP_PIPE, RouterModule } from '@nestjs/core';
 import { routes } from './app.routes';
 import { UserModule } from '@user/user.module';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './user/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { PostModule } from '@post/post.module';
 
