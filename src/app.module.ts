@@ -9,6 +9,7 @@ import { UserModule } from '@user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ProductModule } from '@product/product.module';
+import { PostModule } from '@post/post.module';
 
 @Module({
 	imports: [
@@ -22,6 +23,7 @@ import { ProductModule } from '@product/product.module';
 		ImageModule,
 		AuthModule,
 		ProductModule,
+		PostModule,
 	],
 	controllers: [AppController],
 	providers: [
