@@ -10,6 +10,7 @@ import {
 	ProductListDTO,
 	InProductResponse,
 } from '@product/product.dto';
+import { getIsFollow } from '@util/helper';
 
 @Injectable()
 export class ProductService {
@@ -40,12 +41,11 @@ export class ProductService {
 		product: ProductDocument,
 		userId: string,
 	): Promise<InProductResponse> {
-		const user = await this.userModel.findById(userId);
 		const author = await this.userModel.findById(product.author);
 		if (!author) {
 			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
 		}
-		const isfollow = author.follower.includes(user.accountname);
+		const isfollow = getIsFollow(author, userId);
 		const newProduct: InProductResponse = {
 			...product.readOnlyData,
 			author: {
@@ -88,10 +88,10 @@ export class ProductService {
 		return product;
 	}
 
-	async getProductDetail(productId: string): Promise<ProductResponse> {
+	async getProductDetail(productId: string, userId: string): Promise<ProductResponse> {
 		const product = await this.getProductId(productId);
 		const author = await this.userModel.findById(product.author);
-		const isfollow = author.follower.includes(author.accountname);
+		const isfollow = getIsFollow(author, userId);
 		const productRes = {
 			product: {
 				...product.readOnlyData,
@@ -120,26 +120,22 @@ export class ProductService {
 		await this.productModel.findByIdAndUpdate(productId, productDTO.product, {
 			new: true,
 		});
-		const updatedProductRes = await this.getProductDetail(productId);
+		const updatedProductRes = await this.getProductDetail(productId, userId);
 		return updatedProductRes;
 	}
 
 	async deleteProduct(productId: string, userId: string) {
-		try {
-			const product = await this.getProductId(productId);
-			const author = await this.userModel.findById(product.author);
-			if (author._id.toString() !== userId) {
-				throw new HttpException(
-					'잘못된 요청입니다. 로그인 정보를 확인하세요',
-					HttpStatus.FORBIDDEN,
-				);
-			}
-			await this.productModel.findByIdAndDelete(productId);
-			return {
-				message: '상품이 삭제되었습니다',
-			};
-		} catch (error) {
-			throw new HttpException('등록된 상품이 없습니다', HttpStatus.INTERNAL_SERVER_ERROR);
+		const product = await this.getProductId(productId);
+		const author = await this.userModel.findById(product.author);
+		if (author._id.toString() !== userId) {
+			throw new HttpException(
+				'잘못된 요청입니다. 로그인 정보를 확인하세요',
+				HttpStatus.FORBIDDEN,
+			);
 		}
+		await this.productModel.findByIdAndDelete(productId);
+		return {
+			message: '상품이 삭제되었습니다',
+		};
 	}
 }
