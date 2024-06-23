@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, HydratedDocument } from 'mongoose';
 
-@Schema()
+@Schema({ timestamps: true, collection: 'post' })
 export class Post extends Document {
 	@Prop({ type: String })
 	content: string;
@@ -16,10 +16,39 @@ export class Post extends Document {
 	updatedAt: Date;
 
 	@Prop({ type: [String], default: [] })
+	heart: string[];
+
+	@Prop({ type: [String], default: [] })
 	comment: string[];
 
 	@Prop({ type: String, required: true })
-	authorId: string;
+	author: string;
+
+	readonly readOnlyData: {
+		_id: string;
+		content: string;
+		image: string;
+		createdAt: string;
+		updatedAt: string;
+		hearted: boolean;
+		heartCount: number;
+		commentCount: number;
+	};
 }
 
-export const PostSchema = SchemaFactory.createForClass(Post);
+export type PostDocument = HydratedDocument<Post>;
+const PostSchema = SchemaFactory.createForClass(Post);
+PostSchema.virtual('readOnlyData').get(function (this: Post) {
+	return {
+		id: this._id,
+		content: this.content,
+		image: this.image,
+		createdAt: this.createdAt.toISOString(),
+		updatedAt: this.updatedAt.toISOString(),
+		hearted: false,
+		heartCount: this.heart.length,
+		commentCount: this.comment.length,
+	};
+});
+
+export default PostSchema;
