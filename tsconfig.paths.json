@@ -9,7 +9,7 @@
 			"@image/*": ["src/image/*"],
 			"@util/*": ["src/util/*"],
 			"@config/*": ["src/config/*"],
-			"@auth/*": ["src/auth/*"]
+			"@auth/*": ["src/user/auth/*"]
 		}
 	}
 }
