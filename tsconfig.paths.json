@@ -7,8 +7,7 @@
 			"@comment/*": ["src/comment/*"],
 			"@product/*": ["src/product/*"],
 			"@image/*": ["src/image/*"],
-			"@middleware/*": ["src/middleware/*"],
-			"@utils/*": ["src/utils/*"],
+			"@util/*": ["src/util/*"],
 			"@config/*": ["src/config/*"],
 			"@auth/*": ["src/auth/*"]
 		}
