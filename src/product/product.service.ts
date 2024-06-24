@@ -11,12 +11,16 @@ import {
 	InProductResponse,
 } from '@product/product.dto';
 import { getIsFollow } from '@util/helper';
+import { PostService } from '@post/post.service';
+import { UserService } from '@user/user.service';
 
 @Injectable()
 export class ProductService {
 	constructor(
 		@InjectModel(Product.name) private productModel: Model<ProductDocument>,
 		@InjectModel(User.name) private userModel: Model<UserDocument>,
+		private postService: PostService,
+		private userService: UserService,
 	) {}
 
 	async createProduct(
@@ -26,7 +30,7 @@ export class ProductService {
 		const product = await this.productModel.create({ ...productDTO.product, author: id });
 		const productDocument = await this.productModel.findById(product._id);
 
-		const author = await this.userModel.findById(id);
+		const author = await this.userService.getUserById(id);
 
 		const newProduct: ProductResponse = {
 			product: {
@@ -41,10 +45,7 @@ export class ProductService {
 		product: ProductDocument,
 		userId: string,
 	): Promise<InProductResponse> {
-		const author = await this.userModel.findById(product.author);
-		if (!author) {
-			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-		}
+		const author = await this.userService.getUserById(product.author);
 		const isfollow = getIsFollow(author, userId);
 		const newProduct: InProductResponse = {
 			...product.readOnlyData,
@@ -61,7 +62,7 @@ export class ProductService {
 		limit?: number,
 		skip?: number,
 	): Promise<ProductListDTO> {
-		const user = await this.userModel.findOne({ accountname });
+		const user = await this.userService.getUserByAccountName(accountname);
 		const userId = user._id.toString();
 		const products = await this.productModel
 			.find({ author: userId })
@@ -90,7 +91,7 @@ export class ProductService {
 
 	async getProductDetail(productId: string, userId: string): Promise<ProductResponse> {
 		const product = await this.getProductId(productId);
-		const author = await this.userModel.findById(product.author);
+		const author = await this.userService.getUserById(product.author);
 		const isfollow = getIsFollow(author, userId);
 		const productRes = {
 			product: {
@@ -110,13 +111,7 @@ export class ProductService {
 		userId: string,
 	): Promise<ProductResponse> {
 		const product = await this.getProductId(productId);
-		const author = await this.userModel.findById(product.author);
-		if (author._id.toString() !== userId) {
-			throw new HttpException(
-				'잘못된 요청입니다. 로그인 정보를 확인하세요',
-				HttpStatus.FORBIDDEN,
-			);
-		}
+		await this.postService.compareAuthorAndUser(product.author, userId);
 		await this.productModel.findByIdAndUpdate(productId, productDTO.product, {
 			new: true,
 		});
@@ -126,13 +121,7 @@ export class ProductService {
 
 	async deleteProduct(productId: string, userId: string) {
 		const product = await this.getProductId(productId);
-		const author = await this.userModel.findById(product.author);
-		if (author._id.toString() !== userId) {
-			throw new HttpException(
-				'잘못된 요청입니다. 로그인 정보를 확인하세요',
-				HttpStatus.FORBIDDEN,
-			);
-		}
+		await this.postService.compareAuthorAndUser(product.author, userId);
 		await this.productModel.findByIdAndDelete(productId);
 		return {
 			message: '상품이 삭제되었습니다',
