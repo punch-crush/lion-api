@@ -35,7 +35,7 @@ export class PostController {
 	constructor(
 		private readonly postService: PostService,
 		private readonly commentService: CommentService,
-	) {}
+	) { }
 
 	@Get('/')
 	@Header('content-type', 'application/json')
