@@ -81,4 +81,16 @@ export class CommentService {
 			message: '댓글이 삭제되었습니다.',
 		};
 	}
+
+	async reportComment(commentId: string) {
+		const comment = await this.commentModel.findById(commentId);
+		if (!comment) {
+			throw new HttpException('댓글이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
+		}
+		return {
+			report: {
+				comment: commentId,
+			},
+		};
+	}
 }
