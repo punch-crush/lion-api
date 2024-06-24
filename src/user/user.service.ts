@@ -106,10 +106,7 @@ export class UserService {
 	}
 
 	async getMyInfo(_id: string): Promise<ProfileResponseDto> {
-		const user = await this.userModel.findById({ _id });
-		if (!user) {
-			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-		}
+		const user = await this.getUserById(_id);
 		return {
 			user: user.readOnlyData,
 		};
@@ -128,10 +125,7 @@ export class UserService {
 			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
 		}
 
-		const user = await this.userModel.findById({ _id });
-		if (!user) {
-			throw new HttpException('사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-		}
+		const user = await this.getUserById(_id);
 		user.username = username;
 		user.accountname = accountname;
 		user.intro = intro;

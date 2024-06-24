@@ -1,30 +1,28 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { FollowResponseDto, InfoResponseDto } from './dto/profile.dto';
 import { getIsFollow } from 'src/util/helper';
+import { UserService } from '@user/user.service';
 
 @Injectable()
 export class ProfileService {
-	constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+	constructor(
+		@InjectModel(User.name) private userModel: Model<User>,
+		private userService: UserService,
+	) {}
 
 	async getProfile(accountname: string): Promise<InfoResponseDto> {
-		const user = await this.userModel.findOne({ accountname });
-		if (!user) {
-			throw new HttpException('해당 계정이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
-		}
+		const user = await this.userService.getUserByAccountName(accountname);
 		return {
 			profile: user.readOnlyData,
 		};
 	}
 
 	async follow(_id: string, accountname: string): Promise<FollowResponseDto> {
-		const user = await this.userModel.findOne({ accountname });
-		const myProfile = await this.userModel.findById({ _id });
-		if (!user || !myProfile) {
-			throw new HttpException('해당 계정이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
-		}
+		const user = await this.userService.getUserByAccountName(accountname);
+		const myProfile = await this.userService.getUserById(_id);
 
 		if (!user.follower.includes(_id)) {
 			user.follower.push(_id);
@@ -43,11 +41,8 @@ export class ProfileService {
 	}
 
 	async unfollow(_id: string, accountname: string): Promise<FollowResponseDto> {
-		const user = await this.userModel.findOne({ accountname });
-		const myProfile = await this.userModel.findById({ _id });
-		if (!user || !myProfile) {
-			throw new HttpException('해당 계정이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
-		}
+		const user = await this.userService.getUserByAccountName(accountname);
+		const myProfile = await this.userService.getUserById(_id);
 
 		user.follower = user.follower.filter(id => id !== _id);
 		await user.save();
@@ -65,7 +60,7 @@ export class ProfileService {
 		limit: number,
 		skip: number,
 	): Promise<FollowResponseDto[]> {
-		const user = await this.userModel.findOne({ accountname });
+		const user = await this.userService.getUserByAccountName(accountname);
 		const slicedFollowing = user.following.slice(skip, skip + limit);
 
 		const followingList = [];
@@ -84,7 +79,7 @@ export class ProfileService {
 		limit: number,
 		skip: number,
 	): Promise<FollowResponseDto[]> {
-		const user = await this.userModel.findOne({ accountname });
+		const user = await this.userService.getUserByAccountName(accountname);
 		const slicedFollower = user.follower.slice(skip, skip + limit);
 
 		const followerList = [];
