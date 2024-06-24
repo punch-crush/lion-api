@@ -166,4 +166,17 @@ export class PostService {
 			},
 		};
 	}
+
+	async likePost(postId: string, userId: string): Promise<PostSingleResponseDto> {
+		await this.getPostById(postId);
+		const updatedPost = await this.postModel.findOneAndUpdate(
+			{ _id: postId },
+			{ $addToSet: { heart: userId } },
+			{ new: true },
+		);
+		const postResponse = await this.getSinglePostResponse(updatedPost, userId);
+		return {
+			post: postResponse,
+		};
+	}
 }

@@ -21,7 +21,7 @@ import {
 	PostResponseDto,
 	PostSingleResponseDto,
 } from './dto/post.dto';
-import { JwtAuthGuard } from '@auth/jwt-auth.guard';
+import { JwtAuthGuard } from '@user/auth/guards/jwt-auth.guard';
 
 @Controller()
 export class PostController {
@@ -175,6 +175,24 @@ export class PostController {
 	async reportPost(@Param('post_id') postId: string): Promise<PostReportResponseDto> {
 		try {
 			return this.postService.reportPost(postId);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+	}
+
+	@Post(':post_id/heart')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	async likePost(
+		@Param('post_id') postId: string,
+		@Req() req,
+	): Promise<PostSingleResponseDto> {
+		try {
+			return this.postService.likePost(postId, req.user._id);
 		} catch (error) {
 			if (error instanceof HttpException) {
 				throw error;
