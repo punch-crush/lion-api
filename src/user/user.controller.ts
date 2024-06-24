@@ -5,7 +5,7 @@ import {
 	EmailValidRequestDto,
 	RegisterRequestDto,
 } from './dto/user.dto';
-import { HandleErrors } from 'src/util/error-decorator';
+import { HandleErrors } from '@util/error-decorator';
 
 @Controller('')
 export class UserController {
