@@ -4,7 +4,7 @@ import { PostService } from './post.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import PostSchema, { Post } from './post.schema';
 import { UserModule } from '@user/user.module';
-import { Comment, CommentSchema } from './comment/comment.schema';
+import CommentSchema, { Comment } from './comment/comment.schema';
 import { CommentService } from './comment/comment.service';
 
 @Global()
