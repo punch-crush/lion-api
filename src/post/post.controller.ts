@@ -233,8 +233,19 @@ export class PostController {
 		@Param('comment_id') commentId: string,
 		@Req() req,
 	) {
-		console.log('in deleteComment controller');
 		this.postService.getPostById(postId);
 		return this.commentService.deleteComment(commentId, req.user._id);
+	}
+
+	@Post(':post_id/comments/:comment_id/report')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	@HandleErrors()
+	async repostComment(
+		@Param('post_id') postId: string,
+		@Param('comment_id') commentId: string,
+	) {
+		this.postService.getPostById(postId);
+		return this.commentService.reportComment(commentId);
 	}
 }
