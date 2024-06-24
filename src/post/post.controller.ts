@@ -245,7 +245,7 @@ export class PostController {
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	@HandleErrors()
-	async repostComment(
+	async reportComment(
 		@Param('post_id') postId: string,
 		@Param('comment_id') commentId: string,
 	) {
