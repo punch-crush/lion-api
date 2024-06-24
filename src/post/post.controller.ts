@@ -23,7 +23,11 @@ import {
 } from './dto/post.dto';
 import { JwtAuthGuard } from '@user/auth/guards/jwt-auth.guard';
 import { CommentService } from './comment/comment.service';
-import { CommentRequestDto } from './comment/dto/comment.dto';
+import {
+	CommentListResponseDto,
+	CommentRequestDto,
+	CommentResponseDto,
+} from './comment/dto/comment.dto';
 import { HandleErrors } from 'src/util/error-decorator';
 
 @Controller()
@@ -198,7 +202,7 @@ export class PostController {
 		@Param('post_id') postId: string,
 		@Body() comment: CommentRequestDto,
 		@Req() req,
-	) {
+	): Promise<CommentResponseDto> {
 		await this.postService.getPostById(postId);
 		return this.commentService.createComment(postId, comment.comment, req.user._id);
 	}
@@ -212,7 +216,7 @@ export class PostController {
 		@Query('limit') limit: string,
 		@Query('skip') skip: string,
 		@Req() req,
-	) {
+	): Promise<CommentListResponseDto> {
 		const limitValue = limit ? parseInt(limit) : 10;
 		const skipValue = skip ? parseInt(skip) : 0;
 		await this.postService.getPostById(postId);
