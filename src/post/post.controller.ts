@@ -199,7 +199,7 @@ export class PostController {
 		@Body() comment: CommentRequestDto,
 		@Req() req,
 	) {
-		this.postService.getPostById(postId);
+		await this.postService.getPostById(postId);
 		return this.commentService.createComment(postId, comment.comment, req.user._id);
 	}
 
@@ -215,7 +215,7 @@ export class PostController {
 	) {
 		const limitValue = limit ? parseInt(limit) : 10;
 		const skipValue = skip ? parseInt(skip) : 0;
-		this.postService.getPostById(postId);
+		await this.postService.getPostById(postId);
 		return this.commentService.getCommentList(
 			postId,
 			req.user._id,
@@ -233,7 +233,7 @@ export class PostController {
 		@Param('comment_id') commentId: string,
 		@Req() req,
 	) {
-		this.postService.getPostById(postId);
+		await this.postService.getPostById(postId);
 		return this.commentService.deleteComment(commentId, req.user._id);
 	}
 
@@ -245,7 +245,7 @@ export class PostController {
 		@Param('post_id') postId: string,
 		@Param('comment_id') commentId: string,
 	) {
-		this.postService.getPostById(postId);
+		await this.postService.getPostById(postId);
 		return this.commentService.reportComment(commentId);
 	}
 }
