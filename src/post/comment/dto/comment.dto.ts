@@ -1,28 +1,31 @@
 import { Type } from 'class-transformer';
 import { ValidateNested } from 'class-validator';
-import { CreateCommentRequest, CreateCommentResponse } from './createComment.dto';
+import {
+	CommentReportResponse,
+	CommentRequest,
+	CommentResponse,
+} from './comment-base.dto';
 
 export class CommentRequestDto {
 	@ValidateNested()
-	@Type(() => CreateCommentRequest)
-	comment: CreateCommentRequest;
+	@Type(() => CommentRequest)
+	comment: CommentRequest;
 }
 
 export class CommentResponseDto {
 	@ValidateNested()
-	@Type(() => CreateCommentResponse)
-	comment: CreateCommentResponse;
+	@Type(() => CommentResponse)
+	comment: CommentResponse;
 }
 
 export class CommentListResponseDto {
 	@ValidateNested()
-	@Type(() => CreateCommentResponse)
-	comment: CreateCommentResponse[];
+	@Type(() => CommentResponse)
+	comment: CommentResponse[];
 }
 
-// export interface CommentDTO {
-// 	readonly id: string;
-// 	content: string;
-// 	createdAt: string;
-// 	authorId: string;
-// }
+export class CommentReportResponseDto {
+	@ValidateNested()
+	@Type(() => CommentReportResponse)
+	report: CommentReportResponse;
+}

@@ -1,25 +1,36 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document, HydratedDocument } from 'mongoose';
-import { SingleComment } from './dto/createComment.dto';
+import { Document, HydratedDocument } from 'mongoose';
 
 @Schema({ timestamps: true, collection: 'comments' })
 export class Comment extends Document {
 	@Prop({ type: String, required: true })
 	postId: string;
 
-	@Prop({
-		type: [
-			{
-				content: String,
-				createdAt: { type: Date, default: () => Date.now() },
-				authorId: String,
-				_id: { type: String, default: () => new mongoose.Types.ObjectId() },
-			},
-		],
-		default: [],
-	})
-	comments: SingleComment[];
+	@Prop({ type: String, required: true })
+	content: string;
+
+	@Prop({ type: Date, default: Date.now })
+	createdAt: Date;
+
+	@Prop({ type: String, required: true })
+	authorId: string;
+
+	readonly readOnlyData: {
+		_id: string;
+		content: string;
+		createdAt: string;
+	};
 }
 
 export type CommentDocument = HydratedDocument<Comment>;
-export const CommentSchema = SchemaFactory.createForClass(Comment);
+
+const CommentSchema = SchemaFactory.createForClass(Comment);
+CommentSchema.virtual('readOnlyData').get(function (this: Comment) {
+	return {
+		id: this._id,
+		content: this.content,
+		createdAt: this.createdAt.toISOString(),
+	};
+});
+
+export default CommentSchema;
