@@ -77,7 +77,11 @@ export class PostService {
 		limit: number,
 		skip: number,
 	): Promise<PostListResponseDto> {
-		const posts = await this.postModel.find().limit(limit).skip(skip);
+		const posts = await this.postModel
+			.find()
+			.sort({ createdAt: -1 })
+			.limit(limit)
+			.skip(skip);
 		const postResponse = await this.getPostListResponse(posts, userId);
 		return {
 			posts: postResponse,
@@ -93,6 +97,7 @@ export class PostService {
 		const author = await this.userService.getUserByAccountName(accountname);
 		const posts = await this.postModel
 			.find({ author: author._id })
+			.sort({ createdAt: -1 })
 			.limit(limit)
 			.skip(skip);
 		const postResponse = await this.getPostListResponse(posts, userId);
@@ -110,6 +115,7 @@ export class PostService {
 		const followingIds = author.following;
 		const posts = await this.postModel
 			.find({ author: { $in: followingIds } })
+			.sort({ createdAt: -1 })
 			.limit(limit)
 			.skip(skip);
 		const postResponse = await this.getPostListResponse(posts, userId);
