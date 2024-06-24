@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { CommentRequest, CommentResponse } from './dto/comment-base.dto';
 import { Comment, CommentDocument } from './comment.schema';
 import { CommentResponseDto } from './dto/comment.dto';
+import { getIsFollow } from 'src/util/helper';
 
 @Injectable()
 export class CommentService {
@@ -13,7 +14,10 @@ export class CommentService {
 		private userService: UserService,
 	) {}
 
-	async getCommentResponse(newComment: CommentDocument): Promise<CommentResponse> {
+	async getCommentResponse(
+		newComment: CommentDocument,
+		userId: string,
+	): Promise<CommentResponse> {
 		const { authorId } = newComment;
 		const author = await this.userService.getUserById(authorId);
 
@@ -21,7 +25,7 @@ export class CommentService {
 			...newComment.readOnlyData,
 			author: {
 				...author.readOnlyData,
-				isfollow: false,
+				isfollow: getIsFollow(author, userId),
 			},
 		};
 	}
@@ -29,32 +33,32 @@ export class CommentService {
 	async createComment(
 		postId: string,
 		comment: CommentRequest,
-		authorId: string,
+		userId: string,
 	): Promise<CommentResponseDto> {
 		const { content } = comment;
 		if (!content) {
 			throw new HttpException('댓글을 입력해주세요.', HttpStatus.BAD_REQUEST);
 		}
-
-		const createdComment = new this.commentModel({ postId, content, authorId });
+		const createdComment = new this.commentModel({ postId, content, authorId: userId });
 		await createdComment.save();
-
-		const commentResponse = await this.getCommentResponse(createdComment);
+		const commentResponse = await this.getCommentResponse(createdComment, userId);
 		return {
 			comment: commentResponse,
 		};
 	}
 
-	// async getCommentList(postId: string, userId: string) {
-	// 	void userId;
-	// 	const post = await this.commentModel.findOne({ postId: postId });
-	// 	const commentResponse = await Promise.all(
-	// 		post.comments.map(async el => await this.getCommentResponse(el)),
-	// 	);
-	// 	return {
-	// 		comment: commentResponse,
-	// 	};
-	// }
+	async getCommentList(postId: string, userId: string, limit: number, skip: number) {
+		const comments = await this.commentModel
+			.find({ postId: postId })
+			.skip(skip)
+			.limit(limit);
+		const commentResponse = await Promise.all(
+			comments.map(async el => await this.getCommentResponse(el, userId)),
+		);
+		return {
+			comment: commentResponse,
+		};
+	}
 
 	// async deleteComment(postId: string, commentId: string, userId: string) {
 	// 	void userId;
