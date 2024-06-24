@@ -13,7 +13,7 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { JwtAuthGuard } from '@auth/jwt-auth.guard';
+import { JwtAuthGuard } from '@user/auth/guards/jwt-auth.guard';
 import { FollowResponseDto, InfoResponseDto } from './dto/profile.dto';
 
 @Controller()
