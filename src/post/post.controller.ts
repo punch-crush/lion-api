@@ -224,19 +224,17 @@ export class PostController {
 		);
 	}
 
-	// @Delete(':post_id/comments/:comment_id')
-	// async deleteComment(
-	// 	@Param('post_id') postId: string,
-	// 	@Param('comment_id') commentId: string,
-	// ) {
-	// 	try {
-	// 		return this.commentService.deleteComment(postId, commentId, req.user._id);
-	// 	} catch (error) {
-	// 		if (error instanceof HttpException) {
-	// 			throw error;
-	// 		} else {
-	// 			throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
-	// 		}
-	// 	}
-	// }
+	@Delete(':post_id/comments/:comment_id')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	@HandleErrors()
+	async deleteComment(
+		@Param('post_id') postId: string,
+		@Param('comment_id') commentId: string,
+		@Req() req,
+	) {
+		console.log('in deleteComment controller');
+		this.postService.getPostById(postId);
+		return this.commentService.deleteComment(commentId, req.user._id);
+	}
 }

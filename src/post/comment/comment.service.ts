@@ -4,7 +4,7 @@ import { UserService } from '@user/user.service';
 import { Model } from 'mongoose';
 import { CommentRequest, CommentResponse } from './dto/comment-base.dto';
 import { Comment, CommentDocument } from './comment.schema';
-import { CommentResponseDto } from './dto/comment.dto';
+import { CommentListResponseDto, CommentResponseDto } from './dto/comment.dto';
 import { getIsFollow } from 'src/util/helper';
 
 @Injectable()
@@ -47,7 +47,12 @@ export class CommentService {
 		};
 	}
 
-	async getCommentList(postId: string, userId: string, limit: number, skip: number) {
+	async getCommentList(
+		postId: string,
+		userId: string,
+		limit: number,
+		skip: number,
+	): Promise<CommentListResponseDto> {
 		const comments = await this.commentModel
 			.find({ postId: postId })
 			.skip(skip)
@@ -60,22 +65,20 @@ export class CommentService {
 		};
 	}
 
-	// async deleteComment(postId: string, commentId: string, userId: string) {
-	// 	void userId;
-	// 	const post = await this.commentModel.findOne({ postId: postId });
-	// 	if (!post) {
-	// 		throw new HttpException('해당 포스트를 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-	// 	}
-	// 	const index = post.comments.findIndex(
-	// 		comment => comment._id.toString() === commentId,
-	// 	);
-	// 	if (index === -1) {
-	// 		throw new HttpException('해당 댓글을 찾을 수 없습니다.', HttpStatus.NOT_FOUND);
-	// 	}
-	// 	post.comments.splice(index, 1);
-	// 	await post.save();
-	// 	return {
-	// 		message: '댓글이 성공적으로 삭제되었습니다.',
-	// 	};
-	// }
+	async deleteComment(commentId: string, userId: string) {
+		const comment = await this.commentModel.findById(commentId);
+		if (!comment) {
+			throw new HttpException('댓글이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
+		}
+		if (comment.authorId !== userId) {
+			throw new HttpException(
+				'댓글 작성자만 댓글을 삭제할 수 있습니다.',
+				HttpStatus.UNAUTHORIZED,
+			);
+		}
+		await this.commentModel.deleteOne({ _id: commentId });
+		return {
+			message: '댓글이 삭제되었습니다.',
+		};
+	}
 }
