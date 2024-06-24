@@ -179,4 +179,17 @@ export class PostService {
 			post: postResponse,
 		};
 	}
+
+	async unlikePost(postId: string, userId: string): Promise<PostSingleResponseDto> {
+		await this.getPostById(postId);
+		const updatedPost = await this.postModel.findOneAndUpdate(
+			{ _id: postId },
+			{ $pull: { heart: userId } },
+			{ new: true },
+		);
+		const postResponse = await this.getSinglePostResponse(updatedPost, userId);
+		return {
+			post: postResponse,
+		};
+	}
 }

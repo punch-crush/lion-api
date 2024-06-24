@@ -201,4 +201,22 @@ export class PostController {
 			}
 		}
 	}
+
+	@Delete(':post_id/unheart')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	async unlikePost(
+		@Param('post_id') postId: string,
+		@Req() req,
+	): Promise<PostSingleResponseDto> {
+		try {
+			return this.postService.unlikePost(postId, req.user._id);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+	}
 }
