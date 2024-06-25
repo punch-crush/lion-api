@@ -9,7 +9,6 @@ import {
 	PostResponseDto,
 	PostSingleResponseDto,
 } from './dto/post.dto';
-import { getIsFollow } from 'src/util/helper';
 import { UserService } from '@user/user.service';
 
 @Injectable()
@@ -19,13 +18,13 @@ export class PostService {
 		private userService: UserService,
 	) {}
 
-	async getPostById(productId: string): Promise<PostDocument> {
-		if (!Types.ObjectId.isValid(productId)) {
-			throw new HttpException('등록된 상품이 없습니다.', HttpStatus.NOT_FOUND);
+	async getPostById(postId: string): Promise<PostDocument> {
+		if (!Types.ObjectId.isValid(postId)) {
+			throw new HttpException('존재하지 않는 게시글입니다.', HttpStatus.NOT_FOUND);
 		}
-		const post = await this.postModel.findById(productId);
+		const post = await this.postModel.findById(postId);
 		if (!post) {
-			throw new HttpException('등록된 상품이 없습니다.', HttpStatus.NOT_FOUND);
+			throw new HttpException('존재하지 않는 게시글입니다.', HttpStatus.NOT_FOUND);
 		}
 		return post;
 	}
@@ -43,13 +42,10 @@ export class PostService {
 		post: PostDocument,
 		currUserId: string,
 	): Promise<PostResponse> {
-		const author = await this.userService.getUserById(post.author);
+		const author = await this.userService.getUserByIdResponse(post.author, currUserId);
 		const newPost: PostResponse = {
 			...post.readOnlyData,
-			author: {
-				...author.readOnlyData,
-				isfollow: getIsFollow(author, currUserId),
-			},
+			author,
 		};
 		return newPost;
 	}

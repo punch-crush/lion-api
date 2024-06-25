@@ -4,6 +4,8 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { RegisterRequestDto } from './dto/user.dto';
+import { ProfileResponse } from './dto/user-base.dto';
+import { getIsFollow } from 'src/util/helper';
 
 @Injectable()
 export class UserService {
@@ -17,12 +19,34 @@ export class UserService {
 		return user;
 	}
 
+	async getUserByIdResponse(
+		userId: string,
+		currUserId: string,
+	): Promise<ProfileResponse> {
+		const user = await this.getUserById(userId);
+		return {
+			...user.readOnlyData,
+			isfollow: getIsFollow(user, currUserId),
+		};
+	}
+
 	async getUserByAccountName(accountname: string): Promise<UserDocument> {
 		const user = await this.userModel.findOne({ accountname });
 		if (!user) {
 			throw new HttpException('해당 계정이 존재하지 않습니다.', HttpStatus.NOT_FOUND);
 		}
 		return user;
+	}
+
+	async getUserByAccountNameResponse(
+		accountname: string,
+		currUserId: string,
+	): Promise<ProfileResponse> {
+		const user = await this.getUserByAccountName(accountname);
+		return {
+			...user.readOnlyData,
+			isfollow: getIsFollow(user, currUserId),
+		};
 	}
 
 	async register(user: RegisterRequestDto) {
