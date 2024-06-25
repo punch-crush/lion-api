@@ -204,7 +204,13 @@ export class PostController {
 		@Req() req,
 	): Promise<CommentResponseDto> {
 		await this.postService.getPostById(postId);
-		return this.commentService.createComment(postId, comment.comment, req.user._id);
+		const response = this.commentService.createComment(
+			postId,
+			comment.comment,
+			req.user._id,
+		);
+		await this.postService.increaseCommentCount(postId);
+		return response;
 	}
 
 	@Get(':post_id/comments')
@@ -238,7 +244,9 @@ export class PostController {
 		@Req() req,
 	) {
 		await this.postService.getPostById(postId);
-		return this.commentService.deleteComment(commentId, req.user._id);
+		const response = this.commentService.deleteComment(commentId, req.user._id);
+		await this.postService.decreaseCommentCount(postId);
+		return response;
 	}
 
 	@Post(':post_id/comments/:comment_id/report')
