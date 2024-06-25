@@ -5,7 +5,6 @@ import { Model } from 'mongoose';
 import { CommentRequest, CommentResponse } from './dto/comment-base.dto';
 import { Comment, CommentDocument } from './comment.schema';
 import { CommentListResponseDto, CommentResponseDto } from './dto/comment.dto';
-import { getIsFollow } from 'src/util/helper';
 
 @Injectable()
 export class CommentService {
@@ -19,14 +18,11 @@ export class CommentService {
 		userId: string,
 	): Promise<CommentResponse> {
 		const { authorId } = newComment;
-		const author = await this.userService.getUserById(authorId);
+		const author = await this.userService.getUserByIdResponse(authorId, userId);
 
 		return {
 			...newComment.readOnlyData,
-			author: {
-				...author.readOnlyData,
-				isfollow: getIsFollow(author, userId),
-			},
+			author,
 		};
 	}
 
