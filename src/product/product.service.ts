@@ -10,7 +10,6 @@ import {
 	ProductListDTO,
 	InProductResponse,
 } from '@product/product.dto';
-import { getIsFollow } from '@util/helper';
 import { PostService } from '@post/post.service';
 import { UserService } from '@user/user.service';
 
@@ -45,14 +44,10 @@ export class ProductService {
 		product: ProductDocument,
 		userId: string,
 	): Promise<InProductResponse> {
-		const author = await this.userService.getUserById(product.author);
-		const isfollow = getIsFollow(author, userId);
+		const author = await this.userService.getUserByIdResponse(product.author, userId);
 		const newProduct: InProductResponse = {
 			...product.readOnlyData,
-			author: {
-				...author.readOnlyData,
-				isfollow,
-			},
+			author,
 		};
 		return newProduct;
 	}
@@ -91,15 +86,11 @@ export class ProductService {
 
 	async getProductDetail(productId: string, userId: string): Promise<ProductResponse> {
 		const product = await this.getProductId(productId);
-		const author = await this.userService.getUserById(product.author);
-		const isfollow = getIsFollow(author, userId);
+		const author = await this.userService.getUserByIdResponse(product.author, userId);
 		const productRes = {
 			product: {
 				...product.readOnlyData,
-				author: {
-					...author.readOnlyData,
-					isfollow,
-				},
+				author,
 			},
 		};
 		return productRes;
