@@ -3,7 +3,11 @@ import { User, UserDocument } from './user.schema';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { RegisterRequestDto } from './dto/user.dto';
+import {
+	ProfileResponseDto,
+	ProfileUpdateRequestDto,
+	RegisterRequestDto,
+} from './dto/user.dto';
 import { ProfileResponse } from './dto/user-base.dto';
 import { getIsFollow } from 'src/util/helper';
 

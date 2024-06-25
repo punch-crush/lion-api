@@ -126,18 +126,10 @@ export class ProfileUpdateRequest extends UserCommon {
 	image: string;
 }
 
-export class ProfileResponse extends ProfileUpdateRequest {
-	@IsArray()
-	@IsString({ each: true })
-	follower: string[];
+export class ProfileResponse extends UserSearchResponse {
+	@IsString()
+	intro: string;
 
-	@IsArray()
-	@IsString({ each: true })
-	following: string[];
-
-	@IsNumber()
-	followerCount: number;
-
-	@IsNumber()
-	followingCount: number;
+	@IsString()
+	image: string;
 }
