@@ -21,7 +21,7 @@ import {
 	PostResponseDto,
 	PostSingleResponseDto,
 } from './dto/post.dto';
-import { JwtAuthGuard } from '@auth/jwt-auth.guard';
+import { JwtAuthGuard } from '@user/auth/guards/jwt-auth.guard';
 
 @Controller()
 export class PostController {
