@@ -3,7 +3,11 @@ import { User, UserDocument } from './user.schema';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { RegisterRequestDto } from './dto/user.dto';
+import {
+	ProfileResponseDto,
+	ProfileUpdateRequestDto,
+	RegisterRequestDto,
+} from './dto/user.dto';
 import { ProfileResponse } from './dto/user-base.dto';
 import { getIsFollow } from 'src/util/helper';
 
@@ -63,7 +67,7 @@ export class UserService {
 			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
 		}
 
-		const hashedPassword = await await bcrypt.hash(password, 10);
+		const hashedPassword = await bcrypt.hash(password, 10);
 		const newUser = await this.userModel.create({
 			...user.user,
 			password: hashedPassword,
@@ -103,5 +107,64 @@ export class UserService {
 		const { intro, ...userData } = user.readOnlyData;
 		void intro;
 		return userData;
+	}
+
+	async getMyInfo(_id: string): Promise<ProfileResponseDto> {
+		const user = await this.getUserById(_id);
+		return {
+			user: user.readOnlyData,
+		};
+	}
+
+	async updateProfile(
+		_id: string,
+		newUserInfo: ProfileUpdateRequestDto,
+	): Promise<ProfileResponseDto> {
+		const { username, accountname, intro, image } = newUserInfo.user;
+		if (!accountname || !username) {
+			throw new HttpException('필수 입력사항을 입력해주세요.', HttpStatus.BAD_REQUEST);
+		}
+		const isAccountNameExist = await this.userModel.exists({ accountname });
+		if (isAccountNameExist) {
+			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
+		}
+
+		const user = await this.getUserById(_id);
+		user.username = username;
+		user.accountname = accountname;
+		user.intro = intro;
+		user.image = image;
+
+		await user.save();
+
+		return {
+			user: user.readOnlyData,
+		};
+	}
+
+	async searchUsers(keyword: string) {
+		const users = await this.userModel
+			.find({
+				$or: [
+					{ username: { $regex: keyword, $options: 'i' } },
+					{ accountname: { $regex: keyword, $options: 'i' } },
+				],
+			})
+			.select('_id username accountname following follower')
+			.lean()
+			.exec();
+		if (!users || users.length === 0) {
+			throw new HttpException('검색한 유저 정보가 없습니다.', HttpStatus.NOT_FOUND);
+		}
+
+		const newUsers = users.map(user => {
+			return {
+				...user,
+				followerCount: user.follower.length,
+				followingCount: user.following.length,
+			};
+		});
+
+		return newUsers;
 	}
 }

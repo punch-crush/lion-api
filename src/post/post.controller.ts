@@ -259,5 +259,6 @@ export class PostController {
 	) {
 		await this.postService.getPostById(postId);
 		return this.commentService.reportComment(commentId);
+
 	}
 }

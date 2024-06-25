@@ -10,7 +10,13 @@ export class Product {
 	@IsNumber({}, { message: '가격은 숫자로 입력해야 합니다.' })
 	@IsNotEmpty({ message: '필수 입력사항을 입력해주세요' })
 	price: number;
+
+	@IsString()
+	@IsNotEmpty({ message: '필수 입력사항을 입력해주세요' })
 	link: string;
+
+	@IsString()
+	@IsNotEmpty({ message: '필수 입력사항을 입력해주세요' })
 	itemImage: string;
 }
 
