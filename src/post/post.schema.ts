@@ -15,6 +15,9 @@ export class Post extends Document {
 	@Prop({ type: Date, default: Date.now })
 	updatedAt: Date;
 
+	@Prop({ type: Number, required: true })
+	commentCount: number;
+
 	@Prop({ type: [String], default: [] })
 	heart: string[];
 
@@ -44,7 +47,7 @@ PostSchema.virtual('readOnlyData').get(function (this: Post) {
 		updatedAt: this.updatedAt.toISOString(),
 		hearted: false,
 		heartCount: this.heart.length,
-		commentCount: 0,
+		commentCount: this.commentCount,
 	};
 });
 
