@@ -73,11 +73,11 @@ export class ProductService {
 		};
 	}
 
-	async getProductId(postId: string): Promise<ProductDocument> {
-		if (!Types.ObjectId.isValid(postId)) {
+	async getProductId(productId: string): Promise<ProductDocument> {
+		if (!Types.ObjectId.isValid(productId)) {
 			throw new HttpException('존재하지 않는 상품입니다.', HttpStatus.NOT_FOUND);
 		}
-		const product = await this.productModel.findById(postId);
+		const product = await this.productModel.findById(productId);
 		if (!product) {
 			throw new HttpException('존재하지 않는 상품입니다.', HttpStatus.NOT_FOUND);
 		}
