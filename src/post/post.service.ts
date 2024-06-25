@@ -74,10 +74,14 @@ export class PostService {
 
 	async getAllPost(
 		userId: string,
-		limit: number,
-		skip: number,
+		limit?: number,
+		skip?: number,
 	): Promise<PostListResponseDto> {
-		const posts = await this.postModel.find().limit(limit).skip(skip);
+		const posts = await this.postModel
+			.find()
+			.sort({ createdAt: -1 })
+			.limit(limit)
+			.skip(skip);
 		const postResponse = await this.getPostListResponse(posts, userId);
 		return {
 			posts: postResponse,
@@ -87,12 +91,13 @@ export class PostService {
 	async getUserPost(
 		userId: string,
 		accountname: string,
-		limit: number,
-		skip: number,
+		limit?: number,
+		skip?: number,
 	): Promise<PostResponseDto> {
 		const author = await this.userService.getUserByAccountName(accountname);
 		const posts = await this.postModel
 			.find({ author: author._id })
+			.sort({ createdAt: -1 })
 			.limit(limit)
 			.skip(skip);
 		const postResponse = await this.getPostListResponse(posts, userId);
@@ -103,13 +108,14 @@ export class PostService {
 
 	async getFeedPost(
 		userId: string,
-		limit: number,
-		skip: number,
+		limit?: number,
+		skip?: number,
 	): Promise<PostListResponseDto> {
 		const author = await this.userService.getUserById(userId);
 		const followingIds = author.following;
 		const posts = await this.postModel
 			.find({ author: { $in: followingIds } })
+			.sort({ createdAt: -1 })
 			.limit(limit)
 			.skip(skip);
 		const postResponse = await this.getPostListResponse(posts, userId);

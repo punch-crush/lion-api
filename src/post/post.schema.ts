@@ -15,11 +15,11 @@ export class Post extends Document {
 	@Prop({ type: Date, default: Date.now })
 	updatedAt: Date;
 
-	@Prop({ type: [String], default: [] })
-	heart: string[];
+	@Prop({ type: Number, required: true })
+	commentCount: number;
 
 	@Prop({ type: [String], default: [] })
-	comment: string[];
+	heart: string[];
 
 	@Prop({ type: String, required: true })
 	author: string;
@@ -47,7 +47,7 @@ PostSchema.virtual('readOnlyData').get(function (this: Post) {
 		updatedAt: this.updatedAt.toISOString(),
 		hearted: false,
 		heartCount: this.heart.length,
-		commentCount: this.comment.length,
+		commentCount: this.commentCount,
 	};
 });
 
