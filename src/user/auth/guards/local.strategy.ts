@@ -23,13 +23,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 			throw new HttpException('이메일을 입력해주세요.', HttpStatus.BAD_REQUEST);
 		} else if (!password)
 			throw new HttpException('비밀번호를 입력해주세요.', HttpStatus.BAD_REQUEST);
-		const user = await this.authService.validateUser(email, password);
-		if (!user) {
-			throw new HttpException(
-				'이메일 또는 비밀번호가 일치하지 않습니다.',
-				HttpStatus.UNPROCESSABLE_ENTITY,
-			);
-		}
-		return user;
+		return await this.authService.validateUser(email, password);
 	}
 }
