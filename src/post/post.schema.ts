@@ -15,7 +15,7 @@ export class Post extends Document {
 	@Prop({ type: Date, default: Date.now })
 	updatedAt: Date;
 
-	@Prop({ type: Number, required: true })
+	@Prop({ type: Number, default: 0 })
 	commentCount: number;
 
 	@Prop({ type: [String], default: [] })

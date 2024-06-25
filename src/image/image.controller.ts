@@ -14,7 +14,7 @@ import { ImageService } from './image.service';
 import { Response } from 'express';
 import path from 'path';
 
-@Controller('image')
+@Controller()
 export class ImageController {
 	constructor(private readonly imageService: ImageService) {}
 

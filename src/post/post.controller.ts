@@ -197,4 +197,26 @@ export class PostController {
 		await this.postService.getPostById(postId);
 		return this.commentService.reportComment(commentId);
 	}
+
+	@Post(':post_id/heart')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	@HandleErrors()
+	async likePost(
+		@Param('post_id') postId: string,
+		@Req() req,
+	): Promise<PostSingleResponseDto> {
+		return this.postService.likePost(postId, req.user._id);
+	}
+
+	@Delete(':post_id/unheart')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	@HandleErrors()
+	async unlikePost(
+		@Param('post_id') postId: string,
+		@Req() req,
+	): Promise<PostSingleResponseDto> {
+		return this.postService.unlikePost(postId, req.user._id);
+	}
 }

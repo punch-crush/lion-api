@@ -18,7 +18,7 @@ import { ProfileModule } from '@user/profile.module';
 			isGlobal: true,
 			cache: true,
 		}),
-		MongooseModule.forRoot(process.env.DB_URL + process.env.DB_DATABASE),
+		MongooseModule.forRoot(process.env.DB_URL),
 		RouterModule.register(routes),
 		UserModule,
 		ImageModule,
