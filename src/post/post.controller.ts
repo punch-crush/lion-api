@@ -33,7 +33,7 @@ export class PostController {
 	constructor(
 		private readonly postService: PostService,
 		private readonly commentService: CommentService,
-	) { }
+	) {}
 
 	@Get('/')
 	@Header('content-type', 'application/json')
@@ -129,73 +129,6 @@ export class PostController {
 	@HandleErrors()
 	async reportPost(@Param('post_id') postId: string): Promise<PostReportResponseDto> {
 		return this.postService.reportPost(postId);
-	}
-
-	@Post(':post_id/comments')
-	@Header('content-type', 'application/json')
-	@UseGuards(JwtAuthGuard)
-	@HandleErrors()
-	async createComment(
-		@Param('post_id') postId: string,
-		@Body() comment: CommentRequestDto,
-		@Req() req,
-	): Promise<CommentResponseDto> {
-		await this.postService.getPostById(postId);
-		const response = this.commentService.createComment(
-			postId,
-			comment.comment,
-			req.user._id,
-		);
-		await this.postService.increaseCommentCount(postId);
-		return response;
-	}
-
-	@Get(':post_id/comments')
-	@Header('content-type', 'application/json')
-	@UseGuards(JwtAuthGuard)
-	@HandleErrors()
-	async getCommentList(
-		@Param('post_id') postId: string,
-		@Query('limit') limit: string,
-		@Query('skip') skip: string,
-		@Req() req,
-	): Promise<CommentListResponseDto> {
-		const limitValue = limit ? parseInt(limit) : 10;
-		const skipValue = skip ? parseInt(skip) : 0;
-		await this.postService.getPostById(postId);
-		return this.commentService.getCommentList(
-			postId,
-			req.user._id,
-			limitValue,
-			skipValue,
-		);
-	}
-
-	@Delete(':post_id/comments/:comment_id')
-	@Header('content-type', 'application/json')
-	@UseGuards(JwtAuthGuard)
-	@HandleErrors()
-	async deleteComment(
-		@Param('post_id') postId: string,
-		@Param('comment_id') commentId: string,
-		@Req() req,
-	) {
-		await this.postService.getPostById(postId);
-		const response = this.commentService.deleteComment(commentId, req.user._id);
-		await this.postService.decreaseCommentCount(postId);
-		return response;
-	}
-
-	@Post(':post_id/comments/:comment_id/report')
-	@Header('content-type', 'application/json')
-	@UseGuards(JwtAuthGuard)
-	@HandleErrors()
-	async reportComment(
-		@Param('post_id') postId: string,
-		@Param('comment_id') commentId: string,
-	) {
-		await this.postService.getPostById(postId);
-		return this.commentService.reportComment(commentId);
 	}
 
 	@Post(':post_id/comments')
