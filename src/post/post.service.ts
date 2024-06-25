@@ -74,8 +74,8 @@ export class PostService {
 
 	async getAllPost(
 		userId: string,
-		limit: number,
-		skip: number,
+		limit?: number,
+		skip?: number,
 	): Promise<PostListResponseDto> {
 		const posts = await this.postModel
 			.find()
@@ -91,8 +91,8 @@ export class PostService {
 	async getUserPost(
 		userId: string,
 		accountname: string,
-		limit: number,
-		skip: number,
+		limit?: number,
+		skip?: number,
 	): Promise<PostResponseDto> {
 		const author = await this.userService.getUserByAccountName(accountname);
 		const posts = await this.postModel
@@ -108,8 +108,8 @@ export class PostService {
 
 	async getFeedPost(
 		userId: string,
-		limit: number,
-		skip: number,
+		limit?: number,
+		skip?: number,
 	): Promise<PostListResponseDto> {
 		const author = await this.userService.getUserById(userId);
 		const followingIds = author.following;
