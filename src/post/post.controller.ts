@@ -22,10 +22,20 @@ import {
 	PostSingleResponseDto,
 } from './dto/post.dto';
 import { JwtAuthGuard } from '@user/auth/guards/jwt-auth.guard';
+import { CommentService } from './comment/comment.service';
+import {
+	CommentListResponseDto,
+	CommentRequestDto,
+	CommentResponseDto,
+} from './comment/dto/comment.dto';
+import { HandleErrors } from 'src/util/error-decorator';
 
 @Controller()
 export class PostController {
-	constructor(private readonly postService: PostService) {}
+	constructor(
+		private readonly postService: PostService,
+		private readonly commentService: CommentService,
+	) {}
 
 	@Get('/')
 	@Header('content-type', 'application/json')
@@ -184,39 +194,71 @@ export class PostController {
 		}
 	}
 
-	@Post(':post_id/heart')
+	@Post(':post_id/comments')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
-	async likePost(
+	@HandleErrors()
+	async createComment(
 		@Param('post_id') postId: string,
+		@Body() comment: CommentRequestDto,
 		@Req() req,
-	): Promise<PostSingleResponseDto> {
-		try {
-			return this.postService.likePost(postId, req.user._id);
-		} catch (error) {
-			if (error instanceof HttpException) {
-				throw error;
-			} else {
-				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
-			}
-		}
+	): Promise<CommentResponseDto> {
+		await this.postService.getPostById(postId);
+		const response = this.commentService.createComment(
+			postId,
+			comment.comment,
+			req.user._id,
+		);
+		await this.postService.increaseCommentCount(postId);
+		return response;
 	}
 
-	@Delete(':post_id/unheart')
+	@Get(':post_id/comments')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
-	async unlikePost(
+	@HandleErrors()
+	async getCommentList(
 		@Param('post_id') postId: string,
+		@Query('limit') limit: string,
+		@Query('skip') skip: string,
 		@Req() req,
-	): Promise<PostSingleResponseDto> {
-		try {
-			return this.postService.unlikePost(postId, req.user._id);
-		} catch (error) {
-			if (error instanceof HttpException) {
-				throw error;
-			} else {
-				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
-			}
-		}
+	): Promise<CommentListResponseDto> {
+		const limitValue = limit ? parseInt(limit) : 10;
+		const skipValue = skip ? parseInt(skip) : 0;
+		await this.postService.getPostById(postId);
+		return this.commentService.getCommentList(
+			postId,
+			req.user._id,
+			limitValue,
+			skipValue,
+		);
+	}
+
+	@Delete(':post_id/comments/:comment_id')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	@HandleErrors()
+	async deleteComment(
+		@Param('post_id') postId: string,
+		@Param('comment_id') commentId: string,
+		@Req() req,
+	) {
+		await this.postService.getPostById(postId);
+		const response = this.commentService.deleteComment(commentId, req.user._id);
+		await this.postService.decreaseCommentCount(postId);
+		return response;
+	}
+
+	@Post(':post_id/comments/:comment_id/report')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	@HandleErrors()
+	async reportComment(
+		@Param('post_id') postId: string,
+		@Param('comment_id') commentId: string,
+	) {
+		await this.postService.getPostById(postId);
+		return this.commentService.reportComment(commentId);
+
 	}
 }

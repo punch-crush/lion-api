@@ -38,6 +38,18 @@ export class PostService {
 		}
 	}
 
+	async increaseCommentCount(postId: string) {
+		await this.getPostById(postId);
+		await this.postModel.updateOne({ _id: postId }, { $inc: { commentCount: 1 } });
+	}
+
+	async decreaseCommentCount(postId: string) {
+		const post = await this.getPostById(postId);
+		if (post && post.commentCount > 0) {
+			await this.postModel.updateOne({ _id: postId }, { $inc: { commentCount: -1 } });
+		}
+	}
+
 	async getSinglePostResponse(
 		post: PostDocument,
 		currUserId: string,
