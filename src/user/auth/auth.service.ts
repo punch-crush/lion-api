@@ -9,8 +9,17 @@ export class AuthService {
 		private jwtService: JwtService,
 	) {}
 
+	validateToken(token: string): boolean {
+		try {
+			this.jwtService.verify(token);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
 	async validateUser(email: string, password: string): Promise<any> {
-		const user = await this.usersService.findUser(email, password);
+		const user = await this.usersService.validateLogin(email, password);
 		return user;
 	}
 
