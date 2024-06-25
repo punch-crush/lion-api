@@ -32,9 +32,6 @@ export class CommentService {
 		userId: string,
 	): Promise<CommentResponseDto> {
 		const { content } = comment;
-		if (!content) {
-			throw new HttpException('댓글을 입력해주세요.', HttpStatus.BAD_REQUEST);
-		}
 		const createdComment = new this.commentModel({ postId, content, authorId: userId });
 		await createdComment.save();
 		const commentResponse = await this.getCommentResponse(createdComment, userId);

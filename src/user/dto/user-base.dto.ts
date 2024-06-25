@@ -118,6 +118,14 @@ export class AccountNameValidRequest {
 	accountname: string;
 }
 
+export class ProfileUpdateRequest extends UserCommon {
+	@IsString()
+	intro: string;
+
+	@IsString()
+	image: string;
+}
+
 export class ProfileResponse extends UserSearchResponse {
 	@IsString()
 	intro: string;

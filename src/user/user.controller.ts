@@ -1,11 +1,15 @@
-import { Body, Controller, Header, Post } from '@nestjs/common';
+
+import { Body, Controller, Header, Post, Put, Get, UseGuards, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
 	AccountNameValidRequestDto,
 	EmailValidRequestDto,
+	ProfileUpdateRequestDto,
+	ProfileResponseDto,
 	RegisterRequestDto,
 } from './dto/user.dto';
 import { HandleErrors } from '@util/error-decorator';
+import { JwtAuthGuard } from '@user/auth/guards/jwt-auth.guard';
 
 @Controller('')
 export class UserController {
@@ -32,5 +36,37 @@ export class UserController {
 	async validateAccountName(@Body() user: AccountNameValidRequestDto) {
 		const { accountname } = user.user;
 		return await this.userService.validateAccountName(accountname);
+	}
+
+	@Put()
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	@HandleErrors()
+	async updateProfile(
+		@Req() req,
+		@Body() body: ProfileUpdateRequestDto,
+	): Promise<ProfileResponseDto> {
+		return await this.userService.updateProfile(req.user._id, body);
+	}
+
+	@Get('myinfo')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	async getMyInfo(@Req() req): Promise<ProfileResponseDto> {
+		return await this.userService.getMyInfo(req.user._id);
+	}
+
+	@Get('searchuser')
+	@UseGuards(JwtAuthGuard)
+	async searchUser(@Query('keyword') keyword: string) {
+		try {
+			return await this.userService.searchUsers(keyword);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
 	}
 }
