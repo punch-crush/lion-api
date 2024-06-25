@@ -1,4 +1,4 @@
-import { Body, Controller, Header, Post } from '@nestjs/common';
+import { Body, Controller, Header, Post, Put, Get, UseGuards, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
 	AccountNameValidRequestDto,
@@ -40,33 +40,18 @@ export class UserController {
 	@Put()
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
+	@HandleErrors()
 	async updateProfile(
 		@Req() req,
 		@Body() body: ProfileUpdateRequestDto,
 	): Promise<ProfileResponseDto> {
-		try {
-			return await this.userService.updateProfile(req.user._id, body);
-		} catch (error) {
-			if (error instanceof HttpException) {
-				throw error;
-			} else {
-				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
-			}
-		}
+		return await this.userService.updateProfile(req.user._id, body);
 	}
 
 	@Get('myinfo')
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	async getMyInfo(@Req() req): Promise<ProfileResponseDto> {
-		try {
-			return await this.userService.getMyInfo(req.user._id);
-		} catch (error) {
-			if (error instanceof HttpException) {
-				throw error;
-			} else {
-				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
-			}
-		}
+		return await this.userService.getMyInfo(req.user._id);
 	}
 }
