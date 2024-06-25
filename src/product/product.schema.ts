@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { User } from '../user/user.schema';
+import { Document, HydratedDocument } from 'mongoose';
 
 @Schema()
 export class Product extends Document {
@@ -16,9 +15,26 @@ export class Product extends Document {
 	@Prop({ type: String, required: true, trim: true })
 	itemImage: string;
 
-	@Prop({ type: Types.ObjectId, ref: User.name, required: true })
-	author: User;
+	@Prop({ type: String, required: true })
+	author: string;
+
+	readonly readOnlyData: {
+		_id: string;
+		itemName: string;
+		price: number;
+		link: string;
+		itemImage: string;
+	};
 }
 
+export type ProductDocument = HydratedDocument<Product>;
 export const ProductSchema = SchemaFactory.createForClass(Product);
-ProductSchema.index({ itemName: 'text' });
+ProductSchema.virtual('readOnlyData').get(function (this: Product) {
+	return {
+		_id: this._id,
+		itemName: this.itemName,
+		price: this.price,
+		link: this.link,
+		itemImage: this.itemImage,
+	};
+});

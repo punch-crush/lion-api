@@ -1,56 +1,59 @@
-import {
-	Body,
-	Controller,
-	Get,
-	HttpException,
-	HttpStatus,
-	Post,
-	Query,
-	UseGuards,
-} from '@nestjs/common';
+
+import { Body, Controller, Header, Post, Put, Get, UseGuards, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
 	AccountNameValidRequestDto,
 	EmailValidRequestDto,
+	ProfileUpdateRequestDto,
+	ProfileResponseDto,
 	RegisterRequestDto,
 } from './dto/user.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { HandleErrors } from '@util/error-decorator';
+import { JwtAuthGuard } from '@user/auth/guards/jwt-auth.guard';
 
-@Controller('user')
+@Controller('')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
-	@Post()
+	@Post('/')
+	@Header('content-type', 'application/json')
+	@HandleErrors()
 	async register(@Body() body: RegisterRequestDto) {
 		return await this.userService.register(body);
 	}
 
-	@Post('emailvalid')
+	@Post('/emailvalid')
+	@Header('content-type', 'application/json')
+	@HandleErrors()
 	async validateEmail(@Body() user: EmailValidRequestDto) {
-		try {
-			const { email } = user.user;
-			return await this.userService.validateEmail(email);
-		} catch (error) {
-			if (error instanceof HttpException) {
-				throw error;
-			} else {
-				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
-			}
-		}
+		const { email } = user.user;
+		return await this.userService.validateEmail(email);
 	}
 
-	@Post('accountnamevalid')
+	@Post('/accountnamevalid')
+	@Header('content-type', 'application/json')
+	@HandleErrors()
 	async validateAccountName(@Body() user: AccountNameValidRequestDto) {
-		try {
-			const { accountname } = user.user;
-			return await this.userService.validateAccountName(accountname);
-		} catch (error) {
-			if (error instanceof HttpException) {
-				throw error;
-			} else {
-				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
-			}
-		}
+		const { accountname } = user.user;
+		return await this.userService.validateAccountName(accountname);
+	}
+
+	@Put()
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	@HandleErrors()
+	async updateProfile(
+		@Req() req,
+		@Body() body: ProfileUpdateRequestDto,
+	): Promise<ProfileResponseDto> {
+		return await this.userService.updateProfile(req.user._id, body);
+	}
+
+	@Get('myinfo')
+	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
+	async getMyInfo(@Req() req): Promise<ProfileResponseDto> {
+		return await this.userService.getMyInfo(req.user._id);
 	}
 
 	@Get('searchuser')

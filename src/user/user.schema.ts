@@ -39,7 +39,7 @@ export class User extends Document {
 	@Prop({ type: [String], default: [] })
 	follower: string[];
 
-	readonly readOnlyData: {
+	readonly registerData: {
 		_id: string;
 		username: string;
 		email: string;
@@ -47,11 +47,25 @@ export class User extends Document {
 		intro: string;
 		image: string;
 	};
+
+	readonly readOnlyData: {
+		_id: string;
+		email: string;
+		username: string;
+		accountname: string;
+		intro: string;
+		image: string;
+		following: string[];
+		follower: string[];
+		followingCount: number;
+		followerCount: number;
+		isfollow: boolean;
+	};
 }
 
 export type UserDocument = HydratedDocument<User>;
 const UserSchema = SchemaFactory.createForClass(User);
-UserSchema.virtual('readOnlyData').get(function (this: User) {
+UserSchema.virtual('registerData').get(function (this: User) {
 	return {
 		_id: this.id,
 		email: this.email,
@@ -59,6 +73,21 @@ UserSchema.virtual('readOnlyData').get(function (this: User) {
 		accountname: this.accountname,
 		intro: this.intro,
 		image: this.image,
+	};
+});
+
+UserSchema.virtual('readOnlyData').get(function (this: User) {
+	return {
+		_id: this.id,
+		username: this.username,
+		accountname: this.accountname,
+		intro: this.intro,
+		image: this.image,
+		isfollow: false,
+		following: this.following,
+		follower: this.follower,
+		followingCount: this.following.length,
+		followerCount: this.follower.length,
 	};
 });
 
