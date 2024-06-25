@@ -1,3 +1,4 @@
+
 import { Body, Controller, Header, Post, Put, Get, UseGuards, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -53,5 +54,19 @@ export class UserController {
 	@UseGuards(JwtAuthGuard)
 	async getMyInfo(@Req() req): Promise<ProfileResponseDto> {
 		return await this.userService.getMyInfo(req.user._id);
+	}
+
+	@Get('searchuser')
+	@UseGuards(JwtAuthGuard)
+	async searchUser(@Query('keyword') keyword: string) {
+		try {
+			return await this.userService.searchUsers(keyword);
+		} catch (error) {
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new HttpException('잘못된 접근입니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
 	}
 }
