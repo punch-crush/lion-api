@@ -13,10 +13,10 @@ export class ProfileService {
 		private userService: UserService,
 	) {}
 
-	async getProfile(accountname: string): Promise<InfoResponseDto> {
-		const user = await this.userService.getUserByAccountName(accountname);
+	async getProfile(_id: string, accountname: string): Promise<InfoResponseDto> {
+		const user = await this.userService.getUserByAccountNameResponse(accountname, _id);
 		return {
-			profile: user.readOnlyData,
+			profile: user,
 		};
 	}
 
