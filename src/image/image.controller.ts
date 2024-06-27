@@ -19,13 +19,13 @@ export class ImageController {
 	constructor(private readonly imageService: ImageService) {}
 
 	@Post('uploadfile')
-	@UseInterceptors(FileInterceptor('file', multerConfig))
+	@UseInterceptors(FileInterceptor('image', multerConfig))
 	uploadFile(@UploadedFile() file: Express.Multer.File) {
 		return this.imageService.uploadFile(file);
 	}
 
 	@Post('uploadfiles')
-	@UseInterceptors(FilesInterceptor('files', 3, multerConfig))
+	@UseInterceptors(FilesInterceptor('images', 3, multerConfig))
 	uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>) {
 		return this.imageService.uploadFiles(files);
 	}
