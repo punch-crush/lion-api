@@ -23,8 +23,11 @@ export class ProfileController {
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	@HandleErrors()
-	async getProfile(@Param('accountname') accountname: string): Promise<InfoResponseDto> {
-		return await this.profileService.getProfile(accountname);
+	async getProfile(
+		@Req() req,
+		@Param('accountname') accountname: string,
+	): Promise<InfoResponseDto> {
+		return await this.profileService.getProfile(req.user._id, accountname);
 	}
 
 	@Post(':accountname/follow')
