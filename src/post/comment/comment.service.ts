@@ -36,7 +36,7 @@ export class CommentService {
 		await createdComment.save();
 		const commentResponse = await this.getCommentResponse(createdComment, userId);
 		return {
-			comment: commentResponse,
+			comments: commentResponse,
 		};
 	}
 
@@ -54,7 +54,7 @@ export class CommentService {
 			comments.map(async el => await this.getCommentResponse(el, userId)),
 		);
 		return {
-			comment: commentResponse,
+			comments: commentResponse,
 		};
 	}
 
