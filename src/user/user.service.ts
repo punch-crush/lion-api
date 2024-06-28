@@ -123,17 +123,21 @@ export class UserService {
 		if (!accountname || !username) {
 			throw new HttpException('필수 입력사항을 입력해주세요.', HttpStatus.BAD_REQUEST);
 		}
-		const isAccountNameExist = await this.userModel.exists({ accountname });
-		if (isAccountNameExist) {
-			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
-		}
 
 		const user = await this.getUserById(_id);
+		if (user.accountname !== accountname) {
+			const isAccountNameExist = await this.userModel.exists({ accountname });
+			if (isAccountNameExist) {
+				throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
+			}
+		}
+
 		user.username = username;
 		user.accountname = accountname;
 		user.intro = intro;
 		user.image = image;
 
+		console.log(user);
 		await user.save();
 
 		return {
