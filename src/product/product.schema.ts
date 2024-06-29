@@ -31,7 +31,7 @@ export type ProductDocument = HydratedDocument<Product>;
 export const ProductSchema = SchemaFactory.createForClass(Product);
 ProductSchema.virtual('readOnlyData').get(function (this: Product) {
 	return {
-		_id: this._id,
+		id: this._id,
 		itemName: this.itemName,
 		price: this.price,
 		link: this.link,
