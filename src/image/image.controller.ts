@@ -25,7 +25,7 @@ export class ImageController {
 	}
 
 	@Post('uploadfiles')
-	@UseInterceptors(FilesInterceptor('images', 3, multerConfig))
+	@UseInterceptors(FilesInterceptor('image', 3, multerConfig))
 	uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>) {
 		return this.imageService.uploadFiles(files);
 	}
