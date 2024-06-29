@@ -70,7 +70,7 @@ export class UserController {
 	@Header('content-type', 'application/json')
 	@UseGuards(JwtAuthGuard)
 	@HandleErrors()
-	async searchUser(@Query('keyword') keyword: string) {
-		return await this.userService.searchUsers(keyword);
+	async searchUser(@Req() req, @Query('keyword') keyword: string) {
+		return await this.userService.searchUsers(keyword, req.user._id);
 	}
 }
