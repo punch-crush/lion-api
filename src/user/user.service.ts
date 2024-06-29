@@ -145,7 +145,7 @@ export class UserService {
 		};
 	}
 
-	async searchUsers(keyword: string) {
+	async searchUsers(keyword: string, userId: string) {
 		const users = await this.userModel
 			.find({
 				$or: [
@@ -153,20 +153,21 @@ export class UserService {
 					{ accountname: { $regex: keyword, $options: 'i' } },
 				],
 			})
-			.select('_id username accountname following follower')
+			.select('_id username image accountname following follower')
 			.lean()
 			.exec();
 		if (!users || users.length === 0) {
 			throw new HttpException('검색한 유저 정보가 없습니다.', HttpStatus.NOT_FOUND);
 		}
-
-		const newUsers = users.map(user => {
-			return {
-				...user,
-				followerCount: user.follower.length,
-				followingCount: user.following.length,
-			};
-		});
+		const newUsers = users
+			.filter(user => user._id !== userId)
+			.map(user => {
+				return {
+					...user,
+					followerCount: user.follower.length,
+					followingCount: user.following.length,
+				};
+			});
 
 		return newUsers;
 	}
