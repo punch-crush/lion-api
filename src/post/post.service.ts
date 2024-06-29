@@ -55,9 +55,11 @@ export class PostService {
 		currUserId: string,
 	): Promise<PostResponse> {
 		const author = await this.userService.getUserByIdResponse(post.author, currUserId);
+		const hearted = post.heart.includes(currUserId);
 		const newPost: PostResponse = {
 			...post.readOnlyData,
 			author,
+			hearted,
 		};
 		return newPost;
 	}

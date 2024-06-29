@@ -15,13 +15,13 @@ export class CommentRequestDto {
 export class CommentResponseDto {
 	@ValidateNested()
 	@Type(() => CommentResponse)
-	comment: CommentResponse;
+	comments: CommentResponse;
 }
 
 export class CommentListResponseDto {
 	@ValidateNested()
 	@Type(() => CommentResponse)
-	comment: CommentResponse[];
+	comments: CommentResponse[];
 }
 
 export class CommentReportResponseDto {
