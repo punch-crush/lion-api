@@ -4,12 +4,13 @@ import { Model } from 'mongoose';
 import { Image, ImageDocument } from './image.schema';
 import * as fs from 'fs';
 import * as path from 'path';
+import { imageDTO } from '@image/image.dto';
 
 @Injectable()
 export class ImageService {
 	constructor(@InjectModel(Image.name) private imageModel: Model<ImageDocument>) {}
 
-	async uploadFile(file: Express.Multer.File) {
+	async uploadFile(file: Express.Multer.File): Promise<imageDTO> {
 		if (!file) {
 			throw new BadRequestException('파일이 없습니다.');
 		}
@@ -22,12 +23,11 @@ export class ImageService {
 		return file;
 	}
 
-	async uploadFiles(files: Array<Express.Multer.File>) {
+	async uploadFiles(files: Array<Express.Multer.File>): Promise<imageDTO[]> {
 		if (!files || files.length === 0) {
 			throw new BadRequestException('파일이 없습니다.');
 		}
 
-		// mongodb image collection에 저장
 		for (const file of files) {
 			const imageDocument = new this.imageModel({
 				filename: file.filename,
@@ -47,12 +47,13 @@ export class ImageService {
 					}
 				});
 				return acc;
-			}, {});
+			}, {} as imageDTO);
 		};
 
 		const images = mergeFileDetails(files);
+		console.log(images);
 
-		return images;
+		return [images];
 	}
 
 	async deleteImage(filename: string): Promise<void> {
