@@ -10,10 +10,14 @@ import {
 } from './dto/user.dto';
 import { ProfileResponse } from './dto/user-base.dto';
 import { getIsFollow } from 'src/util/helper';
+import { ImageService } from '@image/image.service';
 
 @Injectable()
 export class UserService {
-	constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+	constructor(
+		@InjectModel(User.name) private userModel: Model<User>,
+		private imageService: ImageService,
+	) {}
 
 	async getUserById(userId: string): Promise<UserDocument> {
 		const user = await this.userModel.findById(userId);
@@ -132,12 +136,15 @@ export class UserService {
 			}
 		}
 
+		if (user.image && user.image !== image) {
+			await this.imageService.deleteImage(user.image);
+		}
+
 		user.username = username;
 		user.accountname = accountname;
 		user.intro = intro;
 		user.image = image;
 
-		console.log(user);
 		await user.save();
 
 		return {

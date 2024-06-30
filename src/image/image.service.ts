@@ -5,6 +5,7 @@ import { Image, ImageDocument } from './image.schema';
 import * as fs from 'fs';
 import * as path from 'path';
 import { imageDTO } from '@image/image.dto';
+import { imageUnlink } from '@util/imageUnlink';
 
 @Injectable()
 export class ImageService {
@@ -51,17 +52,27 @@ export class ImageService {
 		};
 
 		const images = mergeFileDetails(files);
-		console.log(images);
 
 		return [images];
 	}
 
 	async deleteImage(filename: string): Promise<void> {
-		const filePath = path.join('./uploads', filename);
-		fs.unlink(filePath, err => {
-			if (err) {
-				throw new Error('파일 삭제 실패');
-			}
-		});
+		const directory = fs.existsSync('./uploads');
+		if (!directory) {
+			throw new BadRequestException('uploads 폴더가 없습니다');
+		}
+
+		let filenameArr = [];
+		if (filename.startsWith('http://') || filename.startsWith('https://')) {
+			const url = new URL(filename);
+			filenameArr.push(path.basename(url.pathname));
+		} else {
+			filenameArr = filename.split(',').map(file => file.trim());
+		}
+
+		for (const file of filenameArr) {
+			await this.imageModel.deleteOne({ filename: file });
+			imageUnlink(file);
+		}
 	}
 }

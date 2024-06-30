@@ -6,6 +6,7 @@ import PostSchema, { Post } from './post.schema';
 import { UserModule } from '@user/user.module';
 import CommentSchema, { Comment } from './comment/comment.schema';
 import { CommentService } from './comment/comment.service';
+import { ImageModule } from '@image/image.module';
 
 @Global()
 @Module({
@@ -15,6 +16,7 @@ import { CommentService } from './comment/comment.service';
 			{ name: Comment.name, schema: CommentSchema },
 		]),
 		UserModule,
+		ImageModule,
 	],
 	controllers: [PostController],
 	providers: [PostService, CommentService],

@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { User, UserDocument } from '@user/user.schema';
 import { Product, ProductDocument } from './product.schema';
 import {
 	CreateProductDTO,
@@ -12,14 +11,15 @@ import {
 } from '@product/product.dto';
 import { PostService } from '@post/post.service';
 import { UserService } from '@user/user.service';
+import { ImageService } from '@image/image.service';
 
 @Injectable()
 export class ProductService {
 	constructor(
 		@InjectModel(Product.name) private productModel: Model<ProductDocument>,
-		@InjectModel(User.name) private userModel: Model<UserDocument>,
 		private postService: PostService,
 		private userService: UserService,
+		private imageService: ImageService,
 	) {}
 
 	async createProduct(
@@ -114,6 +114,7 @@ export class ProductService {
 		const product = await this.getProductId(productId);
 		await this.postService.compareAuthorAndUser(product.author, userId);
 		await this.productModel.findByIdAndDelete(productId);
+		await this.imageService.deleteImage(product.itemImage);
 		return {
 			message: '상품이 삭제되었습니다',
 		};
