@@ -6,7 +6,6 @@ export const multerConfig = {
 	storage: diskStorage({
 		destination: './uploads',
 		filename: (_, file, cb) => {
-			console.log(file);
 			const filename: string = uuidv4();
 			const extension: string = path.parse(file.originalname).ext; // 파일 확장자 설정
 			cb(null, `${filename}${extension}`); // 파일 이름 설정

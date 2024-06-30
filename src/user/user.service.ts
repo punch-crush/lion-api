@@ -136,14 +136,15 @@ export class UserService {
 			}
 		}
 
-		await this.imageService.deleteImage(user.image);
+		if (user.image && user.image !== image) {
+			await this.imageService.deleteImage(user.image);
+		}
 
 		user.username = username;
 		user.accountname = accountname;
 		user.intro = intro;
 		user.image = image;
 
-		console.log(user);
 		await user.save();
 
 		return {
