@@ -41,10 +41,11 @@ export class UserController {
 
 	@Post('/accountnamevalid')
 	@Header('content-type', 'application/json')
+	@UseGuards(JwtAuthGuard)
 	@HandleErrors()
-	async validateAccountName(@Body() user: AccountNameValidRequestDto) {
+	async validateAccountName(@Req() req, @Body() user: AccountNameValidRequestDto) {
 		const { accountname } = user.user;
-		return await this.userService.validateAccountName(accountname);
+		return await this.userService.validateAccountName(req.user._id, accountname);
 	}
 
 	@Put()

@@ -90,10 +90,13 @@ export class UserService {
 		return { message: '사용 가능한 이메일 입니다.' };
 	}
 
-	async validateAccountName(accountname: string) {
-		const isAccountNameExist = await this.userModel.exists({ accountname });
-		if (isAccountNameExist) {
-			throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
+	async validateAccountName(_id: string, accountname: string) {
+		const myInfo = await this.getUserById(_id);
+		if (myInfo.accountname !== accountname) {
+			const isAccountNameExist = await this.userModel.exists({ accountname });
+			if (isAccountNameExist) {
+				throw new HttpException('이미 가입된 계정ID 입니다.', HttpStatus.BAD_REQUEST);
+			}
 		}
 		return { message: '사용 가능한 계정ID 입니다.' };
 	}
