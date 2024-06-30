@@ -10,12 +10,14 @@ import {
 	PostSingleResponseDto,
 } from './dto/post.dto';
 import { UserService } from '@user/user.service';
+import { ImageService } from '@image/image.service';
 
 @Injectable()
 export class PostService {
 	constructor(
 		@InjectModel(Post.name) private postModel: Model<PostDocument>,
 		private userService: UserService,
+		private imageService: ImageService,
 	) {}
 
 	async getPostById(postId: string): Promise<PostDocument> {
@@ -169,6 +171,7 @@ export class PostService {
 		const post = await this.getPostById(postId);
 		await this.compareAuthorAndUser(post.author, userId);
 		await this.postModel.deleteOne({ _id: postId });
+		await this.imageService.deleteImage(post.image);
 		return {
 			message: '게시물이 성공적으로 삭제되었습니다.',
 		};
