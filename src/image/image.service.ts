@@ -70,14 +70,9 @@ export class ImageService {
 			filenameArr = filename.split(',').map(file => file.trim());
 		}
 
-		if (filenameArr.length > 1) {
-			for (const file of filenameArr) {
-				await this.imageModel.deleteOne({ filename: file });
-				imageUnlink(file);
-			}
-		} else {
-			await this.imageModel.deleteOne({ filename: filenameArr[0] });
-			imageUnlink(filenameArr[0]);
+		for (const file of filenameArr) {
+			await this.imageModel.deleteOne({ filename: file });
+			imageUnlink(file);
 		}
 	}
 }
