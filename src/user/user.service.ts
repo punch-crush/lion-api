@@ -164,7 +164,7 @@ export class UserService {
 			.lean()
 			.exec();
 		if (!users || users.length === 0) {
-			throw new HttpException('검색한 유저 정보가 없습니다.', HttpStatus.NOT_FOUND);
+			return [];
 		}
 		const newUsers = users
 			.filter(user => user._id !== userId)
