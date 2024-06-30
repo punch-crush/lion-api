@@ -60,24 +60,24 @@ export class ImageService {
 		const directory = fs.existsSync('./uploads');
 		if (!directory) {
 			throw new BadRequestException('uploads 폴더가 없습니다');
-		} else {
-			let filenameArr = [];
-			if (filename.startsWith('http://') || filename.startsWith('https://')) {
-				const url = new URL(filename);
-				filenameArr.push(path.basename(url.pathname));
-			} else {
-				filenameArr = filename.split(',').map(file => file.trim());
-			}
+		}
 
-			if (filenameArr.length > 1) {
-				for (const file of filenameArr) {
-					await this.imageModel.deleteOne({ filename: file });
-					imageUnlink(file);
-				}
-			} else {
-				await this.imageModel.deleteOne({ filename: filenameArr[0] });
-				imageUnlink(filenameArr[0]);
+		let filenameArr = [];
+		if (filename.startsWith('http://') || filename.startsWith('https://')) {
+			const url = new URL(filename);
+			filenameArr.push(path.basename(url.pathname));
+		} else {
+			filenameArr = filename.split(',').map(file => file.trim());
+		}
+
+		if (filenameArr.length > 1) {
+			for (const file of filenameArr) {
+				await this.imageModel.deleteOne({ filename: file });
+				imageUnlink(file);
 			}
+		} else {
+			await this.imageModel.deleteOne({ filename: filenameArr[0] });
+			imageUnlink(filenameArr[0]);
 		}
 	}
 }
