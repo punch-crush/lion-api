@@ -88,11 +88,22 @@ JWT_SECRET=JWT SECRET KEY (예시: 랜덤한 문자열, `openssl rand -hex 64` �
 
 <br/>
 
+📌 &nbsp;**필수!! MongoDB Network Access 설정변경** <br/>
+MongoDB Network Access 설정 변경을 꼭 해야합니다. 변경하지 않을 경우 서버배포시 MongoDB에 access 실패로 에러가 나오게 됩니다.
+
+1. MongoDB 사이트(아틀라스)접속 후 SECURITY 카테고리 접속
+2. Network Access 접속
+3. ADD IP ADDRESS 버튼 클릭 (초록색 버튼)
+4. `includes your current IP address` 체크하거나 직접 Access List Entry에 `0.0.0.0/0`입력
+   - 모든 네트워크의 접근을 허용
+
+<br/>
+
 ### 서버 배포 방법
 
-원햐는 서버 호스팅을 선택하여 해당 서버를 배포합니다. <br/>
+원하는 서버 호스팅을 선택하여 해당 서버를 배포합니다. <br/>
 추천하는 서버 호스팅 앱은 `koyeb`입니다. 제한까지 무료로 이용하실 수 있습니다. <br/>
-배포 후 env 파일의 API_HOST에 추가해주세요.(필수아님)
+배포 후 env 파일의 API_HOST에 추가해주세요.(사용할 경우만, 필수아님)
 
 <br/>
 

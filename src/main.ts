@@ -16,14 +16,11 @@ async function bootstrap() {
 
 	await app.listen(port);
 	app.useGlobalPipes(
-		new ValidationPipe(),
-		// 	{
-		// 	whitelist: true,
-		// 	transform: true,
-		// 	transformOptions: {
-		// 		enableImplicitConversion: true,
-		// 	}
-		// }
+		new ValidationPipe({
+			whitelist: true,
+			transform: true,
+			forbidNonWhitelisted: true,
+		}),
 	);
 
 	console.log(`listening on port ${port}`);
