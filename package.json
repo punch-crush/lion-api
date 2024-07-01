@@ -7,7 +7,7 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "nest build",
-		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+		"format": "prettier --write \"src/**/*.ts\"",
 		"start": "node dist/main",
 		"start:dev": "nest start --watch",
 		"start:dev:hmr": "nest build --webpack --webpackPath webpack-hmr.config.js --watch",
