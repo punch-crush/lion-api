@@ -167,7 +167,7 @@ export class UserService {
 			return [];
 		}
 		const newUsers = users
-			.filter(user => user._id !== userId)
+			.filter(user => user._id.toString() !== userId)
 			.map(user => {
 				return {
 					...user,
