@@ -64,7 +64,6 @@ Fork 후, 프로젝트에 맞게 설정하여 사용하실 수 있습니다.
 **env 파일 예시**
 
 ```bash
-# HOST는 프로젝트에서 사용되지 않아서 필수 값은 아님
 DEV_HOST=http://localhost:8080/
 API_HOST=서버 배포 URL
 
@@ -103,7 +102,7 @@ MongoDB Network Access 설정 변경을 꼭 해야합니다. 변경하지 않을
 
 원하는 서버 호스팅을 선택하여 해당 서버를 배포합니다. <br/>
 추천하는 서버 호스팅 앱은 `koyeb`입니다. 제한까지 무료로 이용하실 수 있습니다. <br/>
-배포 후 env 파일의 API_HOST에 추가해주세요.(사용할 경우만, 필수아님)
+배포 후 env 파일의 API_HOST에 추가해주세요.
 
 <br/>
 
@@ -126,6 +125,13 @@ MongoDB Network Access 설정 변경을 꼭 해야합니다. 변경하지 않을
 <span style="color:#909090">일부 서버 Response와 다르게 적힌 명세는 수정했습니다.</span>
 
 <br/>
+
+## Role
+|**김도경**|**우혜리**|**이도하**|**임다솜** |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| <img width="180" alt="d-charlie-kim_profile_img" src="https://avatars.githubusercontent.com/u/74645799?v=4"> | <img width="180"  alt="seoyoung-kim_profile_img" src="https://avatars.githubusercontent.com/u/107099724?v=4"> | <img width="180" alt="haron-lee_profile_img" src="https://avatars.githubusercontent.com/u/88657261?v=4"> | <img width="180" alt="bringvotrevin_profile_img" src="https://avatars.githubusercontent.com/u/81025416?v=4" > |
+| [d-charlie-kim](https://github.com/d-charlie-kim) | [hyeri-woo](https://github.com/hyeri-woo) | [haron-lee](https://github.com/haron-lee) | [bringvotrevin](https://github.com/bringvotrevin) |
+|- 프로필 모듈 <br/> - validationPipe|- 회원가입 모듈 <br/> - 게시글 모듈|- 이미지 모듈 <br/> - router 모듈 <br/> - 상품 모듈|- 로그인 모듈 <br/> - 댓글 모듈 <br/> 좋아요 및 검색 기능|
 
 ## Contributors
 
