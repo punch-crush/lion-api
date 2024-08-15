@@ -1,11 +1,11 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Image, ImageDocument } from './image.schema';
-import * as fs from 'fs';
-import * as path from 'path';
 import { imageDTO } from '@image/image.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { imageUnlink } from '@util/imageUnlink';
+import * as fs from 'fs';
+import { Model } from 'mongoose';
+import * as path from 'path';
+import { Image, ImageDocument } from './image.schema';
 
 @Injectable()
 export class ImageService {
@@ -63,16 +63,18 @@ export class ImageService {
 		}
 
 		let filenameArr = [];
-		if (filename.startsWith('http://') || filename.startsWith('https://')) {
+		if (filename.startsWith(process.env.API_HOST)) {
 			const url = new URL(filename);
 			filenameArr.push(path.basename(url.pathname));
 		} else {
 			filenameArr = filename.split(',').map(file => file.trim());
 		}
 
-		for (const file of filenameArr) {
-			await this.imageModel.deleteOne({ filename: file });
-			imageUnlink(file);
+		if (filename.startsWith(process.env.API_HOST)) {
+			for (const file of filenameArr) {
+				await this.imageModel.deleteOne({ filename: file });
+				imageUnlink(file);
+			}
 		}
 	}
 }
