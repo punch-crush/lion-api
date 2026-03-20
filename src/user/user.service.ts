@@ -152,7 +152,7 @@ export class UserService {
 		};
 	}
 
-	async searchUsers(keyword: string, userId: string) {
+	async searchUsers(keyword: string, userId: string): Promise<any[]> {
 		const users = await this.userModel
 			.find({
 				$or: [
