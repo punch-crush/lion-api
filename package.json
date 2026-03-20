@@ -52,8 +52,8 @@
 		"@types/passport-jwt": "^4.0.1",
 		"@types/supertest": "^6.0.0",
 		"@types/uuid": "^9.0.8",
-		"@typescript-eslint/eslint-plugin": "^6.0.0",
-		"@typescript-eslint/parser": "^6.0.0",
+		"@typescript-eslint/eslint-plugin": "^7.18.0",
+		"@typescript-eslint/parser": "^7.18.0",
 		"eslint": "^8.42.0",
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-plugin-prettier": "^5.0.0",
@@ -96,5 +96,15 @@
 			"yarn format",
 			"yarn lint"
 		]
+	},
+	"resolutions": {
+		"glob/minimatch": "3.1.4",
+		"eslint/minimatch": "3.1.4",
+		"@humanwhocodes/config-array/minimatch": "3.1.4",
+		"@eslint/eslintrc/minimatch": "3.1.4",
+		"test-exclude/minimatch": "3.1.4",
+		"@nestjs/cli/rimraf/glob/minimatch": "8.0.6",
+		"@nestjs/cli/glob/minimatch": "9.0.7",
+		"@typescript-eslint/typescript-estree/minimatch": "9.0.7"
 	}
 }
